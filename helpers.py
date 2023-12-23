@@ -10,3 +10,8 @@ def eq(a: str, b: str) -> str:
 
 def default(function_name: str, assigned_val: str) -> str:
     return eq(function_name, assigned_val)
+
+
+def iterator(filter: str, effects: str) -> str:
+    """limit = { <triggers> } <effects>"""
+    return eq("limit", br(filter)) + "\n" + effects
