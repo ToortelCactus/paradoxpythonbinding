@@ -74,6 +74,7 @@ class Event:
         self.options(options)
 
         getlocalscriptfile().export(str(self))
+        self.addendum = ""
 
     def type(self, ty: EventType):
         self.data["type"] = ty.name
@@ -139,6 +140,11 @@ class Event:
             opt.name = self.name + "." + letter
         return self
 
+    def add_text(self, text: str):
+        """ When no other function can do the job, use this and write it in text (!danger! no validation) """
+        self.addendum = text
+        return self
+
     def __str__(self):
         content = ""
 
@@ -156,6 +162,7 @@ class Event:
         for option in self.option_data:
             content += eq("option", br(str(option), 1)) + "\n"
 
+        content += self.addendum
         return eq(self.name, br(content))
 
 

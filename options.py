@@ -8,11 +8,17 @@ class Option:
         self.default = is_default
         self.effects = effects
         self.trigger = self.conditional(trigger)
+        self.addendum = ""
 
     def conditional(self, conditional):
         if conditional:
             return eq("trigger", br(conditional, 2)) + "\n"
         return None
+
+    def add_text(self, text: str):
+        """ When no other function can do the job, use this and write it in text (!danger! no validation) """
+        self.addendum = text
+        return self
 
     def __str__(self):
         content = eq("name", self.name) + "\n"
@@ -27,5 +33,6 @@ class Option:
         # effect items
         content += effects_to_script(self.effects)
 
+        content += self.addendum
         return content
 
