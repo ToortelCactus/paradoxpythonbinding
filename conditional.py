@@ -1,5 +1,5 @@
 import inspect
-from helpers import default, iterator, br, eq
+from helpers import default, iterator, br, eq, ge
 
     
 def active_lens(arg):
@@ -17,7 +17,8 @@ def active_lens_option(arg):
     active_lens_option = lens_option_keyAn interface trigger, can only be used in specific places
     **Supported Scopes**: none/all"""
     return default(inspect.stack()[0][3], arg)
-    
+
+
 def add_to_temporary_list(arg):
     """
     Saves a temporary target for use during the trigger execution
@@ -1099,7 +1100,7 @@ def country_has_building_type_levels(arg):
 def country_has_local_shortage(arg):
     """
     Whether the scoped market goods are in shortage in the target country
-    country_has_local_shortage = scope:example_countryTraits: country scope
+    country_has_local_shortage = scope:example_country Traits: country scope
     **Supported Scopes**: market_goods
     **Supported Targets**: country"""
     return default(inspect.stack()[0][3], arg)
@@ -4966,9 +4967,18 @@ def weighted_calc_true_if(arg):
     
 def year(arg):
     """
+    usage: year("year != 1860")
+
     Compares the current year of the game
-    year > 1850Traits: <, <=, =, !=, >, >=
-    **Supported Scopes**: none/all
-    
-    
-    
+    year > 1850 Traits: <, <=, =, !=, >, >=
+    **Supported Scopes**: none/all"""
+    return arg
+
+
+def year_since(arg):
+    """
+    Compares the current year of the game
+    year > 1850 Traits: >
+    **Supported Scopes**: none/all"""
+    return ge(inspect.stack()[0][3], arg)
+

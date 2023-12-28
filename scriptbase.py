@@ -4,17 +4,19 @@ currentFile = None
 
 
 class ScriptFile:
-    def __init__(self, file: str):
+    def __init__(self, file: str, folder: str = ""):
+        """ file= 'usa_events', folder= 'USA_events/another_folder'"""
         self.name = file
-        with open(file + ".txt", "w") as f:
-            f.write("namespace = " + file + "\n")
+        self.filepath = folder + "/" + file
+        with open(self.filepath + ".txt", "w") as f:
+            f.write("namespace = " + file + "\n\n")
 
         global currentFile
         currentFile = self
 
     def export(self, text: str):
-        with open(self.name + ".txt", "a") as f:
-            f.write(text)
+        with open(self.filepath + ".txt", "a") as f:
+            f.write(text + "\n\n\n")
 
 
 def getlocalscriptfile() -> ScriptFile:

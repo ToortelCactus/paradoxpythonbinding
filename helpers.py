@@ -8,6 +8,10 @@ def eq(a: str, b: str) -> str:
     return a + " = " + b
 
 
+def ge(a: str, b: str) -> str:
+    return a + " > " + b
+
+
 def default(function_name: str, assigned_val: str) -> str:
     return eq(function_name, assigned_val)
 
@@ -15,3 +19,11 @@ def default(function_name: str, assigned_val: str) -> str:
 def iterator(filter: str, effects: str) -> str:
     """limit = { <triggers> } <effects>"""
     return eq("limit", br(filter)) + "\n" + effects
+
+
+def effects_to_script(effects: list, layer: int = 1) -> str:
+    contents = ""
+    for effect in effects:
+        contents += ("    " * layer) + effect + "\n"
+    return contents
+

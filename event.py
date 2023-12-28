@@ -1,11 +1,17 @@
-from helpers import eq, br
+from helpers import eq, br, effects_to_script
 from enum import Enum
-import effects as ef
 from scriptbase import getlocalscriptfile
+from options import Option
+from string import  ascii_lowercase
+
+from typing import List
+
 
 defs = ["type", "placement", "title", "desc", "flavor", "icon", "duration",
-        "immediate", "trigger", "event_image", "on_created_soundeffect",
-        "on_opened_soundeffect", "cancellation_trigger"]
+        "on_created_soundeffect", "on_opened_soundeffect"]
+
+
+defsBr = ["immediate", "trigger", "cancellation_trigger", "event_image"]
 
 
 class EventType(Enum):
@@ -21,30 +27,45 @@ def empty_data():
     return data
 
 
+def empty_brdata():
+    data = {}
+    for d in defsBr:
+        data.setdefault(d, None)
+    return data
+
+
 class Event:
+    """
+    Creates event
+    """
     def __init__(self, name: str,
                  event_type: EventType,
                  effects: list,
-                 trigger,
+                 trigger: list,
                  icon_path: str,
                  duration: int,
                  event_img_path: str,
                  created_sfx_path: str,
                  options: list,
+                 cancel_trigger = None,
                  placement: str = "root",
                  opened_sfx_path: str = None,
                  desc_file: str = None):
         # register this somewhere or something
         self.name = name
         self.data = empty_data()
+        self.brdata = empty_brdata()
+        self.option_data = []
         if desc_file:
             self.description(desc_file)
         else:
             self.description(self.name)
 
         self.type(event_type)
+        self.placement(placement)
         self.immediate(effects)
         self.trigger(trigger)
+        self.cancellation_trigger(cancel_trigger)
         self.icon(icon_path)
         self.duration(duration)
         self.event_image(event_img_path)
@@ -58,6 +79,10 @@ class Event:
         self.data["type"] = ty.name
         return self
 
+    def placement(self, scope):
+        self.data["placement"] = scope
+        return self
+
     def description(self, filename):
         """
         This includes title and flavor.
@@ -69,20 +94,16 @@ class Event:
         return self
 
     def immediate(self, effects: list):
-        contents = ""
-        for effect in effects:
-            contents += "\t" + effect + "\n"
-
-        self.data["immediate"] = contents
+        self.brdata["immediate"] = effects_to_script(effects)
         return self
 
-    def trigger(self, conditional):
-        # TODO
-        self.data["trigger"] = conditional
+    def trigger(self, conditionals: list):
+        if conditionals:
+            self.brdata["trigger"] = effects_to_script(conditionals)
         return self
 
     def cancellation_trigger(self, conditional):
-        self.data["cancellation_trigger"] = conditional
+        self.brdata["cancellation_trigger"] = conditional
         return self
 
     def icon(self, path):
@@ -100,7 +121,7 @@ class Event:
         else:
             content = eq("texture", br(content, 2))
 
-        self.data["event_image"] = content
+        self.brdata["event_image"] = content
         return self
 
     def on_created_soundeffect(self, path):
@@ -112,15 +133,29 @@ class Event:
             self.data["on_opened_soundeffect"] = '"' + path + '"'
         return self
 
-    def options(self, options: list):
-        # TODO
+    def options(self, options: List[Option]):
+        self.option_data = options
+        for opt, letter in zip(self.option_data, ascii_lowercase[:len(options)]):
+            opt.name = self.name + "." + letter
         return self
 
     def __str__(self):
         content = ""
+
+        # non-bracketed items
         for item in list(self.data.items()):
             if item[1]:
+                content += eq(item[0], item[1]) + "\n"
+
+        # bracketed items
+        for item in list(self.brdata.items()):
+            if item[1]:
                 content += eq(item[0], br(item[1], 1)) + "\n"
+
+        # options
+        for option in self.option_data:
+            content += eq("option", br(str(option), 1)) + "\n"
+
         return eq(self.name, br(content))
 
 
