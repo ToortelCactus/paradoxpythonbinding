@@ -1,5 +1,20 @@
-from helpers import default, iterator, br, eq
+from helpers import default, iterator, random_iterator, br, eq
 import inspect
+from enum import Enum
+
+
+class Level(Enum):
+    very_low = 1
+    low = 2
+    medium = 3
+    high = 4
+    very_high = 5
+
+
+class StateType(Enum):
+    incorporated = 1
+    unincorporated = 2
+    treaty_port = 3
 
 
 # TODO: most effects are unfinished
@@ -2207,7 +2222,8 @@ def kill_population(arg):
 
     Kills a number of individuals in the population in the scoped country.
 
-    All parameters except percent are optional. Pop type and strata cannot be used at the same time.kill_population = {
+    All parameters except percent are optional. Pop type and strata cannot be used at the same time.
+    kill_population = {
         value = <integer value>
         culture = <scope/cu:key>
         religion = <scope/rel:key>
@@ -2225,7 +2241,8 @@ def kill_population_in_state(arg):
 
     Kills a number of individuals in the population in the scoped state.
 
-    All parameters except percent are optional. Pop type and strata cannot be used at the same time.kill_population = {
+    All parameters except percent are optional. Pop type and strata cannot be used at the same time.
+    kill_population = {
         value = <integer value>
         culture = <scope/cu:key>
         religion = <scope/rel:key>
@@ -2243,7 +2260,8 @@ def kill_population_percent(arg):
 
     Kills a percentage of the population in the scoped country.
 
-    All parameters except percent are optional. Pop type and strata cannot be used at the same time.kill_population_percent = {
+    All parameters except percent are optional. Pop type and strata cannot be used at the same time.
+    kill_population_percent = {
         percent = <decimal value>
         culture = <scope/cu:key>
         religion = <scope/rel:key>
@@ -2261,7 +2279,8 @@ def kill_population_percent_in_state(arg):
 
     Kills a percentage of the population in the scoped state.
 
-    All parameters except percent are optional. Pop type and strata cannot be used at the same time.kill_population_percent = {
+    All parameters except percent are optional. Pop type and strata cannot be used at the same time.
+    kill_population_percent = {
         percent = <decimal value>
         culture = <scope/cu:key>
         religion = <scope/rel:key>
@@ -2274,7 +2293,7 @@ def kill_population_percent_in_state(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def lock_trade_route(arg):
+def lock_trade_route(years):
     """
 
     Lock a trade route for a set amount of time, preventing it from being cancelled manually
@@ -2283,7 +2302,7 @@ def lock_trade_route(arg):
     }
     **Supported Scopes**: trade_route
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eq("years", years)))
 
 
 def make_independent(arg):
@@ -2322,6 +2341,7 @@ def move_pop(arg):
     """
     return default(inspect.stack()[0][3], arg)
 
+# TODO all ordered iterators
 
 def ordered_active_party(arg):
     """
@@ -3493,7 +3513,7 @@ def random(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def random_active_party(arg):
+def random_active_party(triggers, effects, mtth=""):
     """
 
     Iterate through all active political parties in a country
@@ -3501,10 +3521,10 @@ def random_active_party(arg):
     **Supported Scopes**: country
     **Supported Targets**: party
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_character(arg):
+def random_character(triggers, effects, mtth=""):
     """
 
     Iterate through all characters globally
@@ -3512,10 +3532,10 @@ def random_character(arg):
     **Supported Scopes**: none/all
     **Supported Targets**: character
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_character_in_exile_pool(arg):
+def random_character_in_exile_pool(triggers, effects, mtth=""):
     """
 
     Iterate through characters in the exile pool
@@ -3523,10 +3543,10 @@ def random_character_in_exile_pool(arg):
     **Supported Scopes**: none/all
     **Supported Targets**: character
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_character_in_void(arg):
+def random_character_in_void(triggers, effects, mtth=""):
     """
 
     Iterate through characters in the void
@@ -3534,10 +3554,10 @@ def random_character_in_void(arg):
     **Supported Scopes**: none/all
     **Supported Targets**: character
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_civil_war(arg):
+def random_civil_war(triggers, effects, mtth=""):
     """
 
     Iterate through all civil wars related to the scoped country
@@ -3545,10 +3565,10 @@ def random_civil_war(arg):
     **Supported Scopes**: country
     **Supported Targets**: civil_war
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_cobelligerent_in_diplo_play(arg):
+def random_cobelligerent_in_diplo_play(triggers, effects, mtth=""):
     """
 
     Iterate through all co-belligerents of scope country in all diplomatic plays (includes wars)
@@ -3556,10 +3576,10 @@ def random_cobelligerent_in_diplo_play(arg):
     **Supported Scopes**: country
     **Supported Targets**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_cobelligerent_in_war(arg):
+def random_cobelligerent_in_war(triggers, effects, mtth=""):
     """
 
     Iterate through all co-belligerents of scope country in all wars
@@ -3567,10 +3587,10 @@ def random_cobelligerent_in_war(arg):
     **Supported Scopes**: country
     **Supported Targets**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_combat_unit(arg):
+def random_combat_unit(triggers, effects, mtth=""):
     """
 
     Iterate through all combat units of input scope
@@ -3579,10 +3599,10 @@ def random_combat_unit(arg):
     **Supported Scopes**: battle, building, front, hq, military_formation
     **Supported Targets**: new_combat_unit
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_company(arg):
+def random_company(triggers, effects, mtth=""):
     """
 
     Iterate through all companies in a country
@@ -3590,10 +3610,10 @@ def random_company(arg):
     **Supported Scopes**: country
     **Supported Targets**: company
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_country(arg):
+def random_country(triggers, effects, mtth=""):
     """
 
     Iterate through all countries globally
@@ -3601,10 +3621,10 @@ def random_country(arg):
     **Supported Scopes**: none/all
     **Supported Targets**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_diplomatic_play(arg):
+def random_diplomatic_play(triggers, effects, mtth=""):
     """
 
     Iterate through all diplomatic plays globally
@@ -3612,10 +3632,10 @@ def random_diplomatic_play(arg):
     **Supported Scopes**: none/all
     **Supported Targets**: diplomatic_play
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_enemy_in_diplo_play(arg):
+def random_enemy_in_diplo_play(triggers, effects, mtth=""):
     """
 
     Iterate through all enemies of scope country in all diplomatic plays (includes wars)
@@ -3623,10 +3643,10 @@ def random_enemy_in_diplo_play(arg):
     **Supported Scopes**: country
     **Supported Targets**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_enemy_in_war(arg):
+def random_enemy_in_war(triggers, effects, mtth=""):
     """
 
     Iterate through all enemies of scope country in all wars
@@ -3634,20 +3654,20 @@ def random_enemy_in_war(arg):
     **Supported Scopes**: country
     **Supported Targets**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_in_global_list(arg):
+def random_in_global_list(triggers, effects, mtth=""):
     """
 
     Iterate through all items in global list. list = name or variable = name
     random_in_global_list = { limit = { <triggers> } (optional) weight = { mtth } <effects> }
     **Supported Scopes**: none/all
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_in_hierarchy(arg):
+def random_in_hierarchy(triggers, effects, mtth=""):
     """
 
     Any country in current hierarchy, including current
@@ -3655,30 +3675,30 @@ def random_in_hierarchy(arg):
     **Supported Scopes**: country
     **Supported Targets**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_in_list(arg):
+def random_in_list(triggers, effects, mtth=""):
     """
 
     Iterate through all items in list. list = name or variable = name
     random_in_list = { limit = { <triggers> } (optional) weight = { mtth } <effects> }
     **Supported Scopes**: none/all
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_in_local_list(arg):
+def random_in_local_list(triggers, effects, mtth=""):
     """
 
     Iterate through all items in local list. list = name or variable = name
     random_in_local_list = { limit = { <triggers> } (optional) weight = { mtth } <effects> }
     **Supported Scopes**: none/all
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_interest_group(arg):
+def random_interest_group(triggers, effects, mtth=""):
     """
 
     Iterate through all interest groups in a country
@@ -3686,10 +3706,10 @@ def random_interest_group(arg):
     **Supported Scopes**: country
     **Supported Targets**: interest_group
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_law(arg):
+def random_law(triggers, effects, mtth=""):
     """
 
     Iterate through all laws in a country
@@ -3697,7 +3717,7 @@ def random_law(arg):
     **Supported Scopes**: country
     **Supported Targets**: law
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
 def random_list(arg):
@@ -3724,7 +3744,7 @@ def random_log_scopes(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def random_market(arg):
+def random_market(triggers, effects, mtth=""):
     """
 
     Iterate through all markets globally
@@ -3732,10 +3752,10 @@ def random_market(arg):
     **Supported Scopes**: none/all
     **Supported Targets**: market
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_market_goods(arg):
+def random_market_goods(triggers, effects, mtth=""):
     """
 
     Iterate through all active (market) goods in a market
@@ -3743,10 +3763,10 @@ def random_market_goods(arg):
     **Supported Scopes**: market
     **Supported Targets**: market_goods
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_member(arg):
+def random_member(triggers, effects, mtth=""):
     """
 
     Iterate through all interest group members of a party
@@ -3754,10 +3774,10 @@ def random_member(arg):
     **Supported Scopes**: party
     **Supported Targets**: interest_group
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_military_formation(arg):
+def random_military_formation(triggers, effects, mtth=""):
     """
 
     Iterate through all military formations currently present at input scope
@@ -3766,10 +3786,10 @@ def random_military_formation(arg):
     **Supported Scopes**: country, front, hq
     **Supported Targets**: military_formation
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_neighbouring_state(arg):
+def random_neighbouring_state(triggers, effects, mtth=""):
     """
 
     Iterate through all states neighbouring a state region
@@ -3777,10 +3797,10 @@ def random_neighbouring_state(arg):
     **Supported Scopes**: country, state, state_region, strategic_region
     **Supported Targets**: state
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_overlord_or_above(arg):
+def random_overlord_or_above(triggers, effects, mtth=""):
     """
 
     Any country above current in hierarchy
@@ -3788,10 +3808,10 @@ def random_overlord_or_above(arg):
     **Supported Scopes**: country
     **Supported Targets**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_participant(arg):
+def random_participant(triggers, effects, mtth=""):
     """
 
     Any of two participants of the diplomatic pact in a scope
@@ -3799,10 +3819,10 @@ def random_participant(arg):
     **Supported Scopes**: diplomatic_pact
     **Supported Targets**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_political_movement(arg):
+def random_political_movement(triggers, effects, mtth=""):
     """
 
     Iterate through all political movements in a country
@@ -3810,10 +3830,10 @@ def random_political_movement(arg):
     **Supported Scopes**: country
     **Supported Targets**: political_movement
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_potential_party(arg):
+def random_potential_party(triggers, effects, mtth=""):
     """
 
     Iterate through all potential political parties in a country
@@ -3821,10 +3841,10 @@ def random_potential_party(arg):
     **Supported Scopes**: country
     **Supported Targets**: party
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_preferred_law(arg):
+def random_preferred_law(triggers, effects, mtth=""):
     """
 
     Iterate through all active and possible laws in an interest group's country, ordered by how much they prefer that law
@@ -3832,23 +3852,23 @@ def random_preferred_law(arg):
     **Supported Scopes**: interest_group
     **Supported Targets**: law
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_primary_culture(arg):
+def random_primary_culture(triggers, effects, mtth=""):
     """
 
-    Primary cultures of the scoped country or country definition(arg):
+    Primary cultures of the scoped country or country definition(triggers, effects, mtth=""):
 
     random_primary_culture = { limit = { <triggers> } (optional) weight = { mtth } <effects> }
-    **Supported Scopes**: country, country_definition, state(arg):
+    **Supported Scopes**: country, country_definition, state(triggers, effects, mtth=""):
 
     **Supported Targets**: culture
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_province(arg):
+def random_province(triggers, effects, mtth=""):
     """
 
     Iterate through all Provinces in the scoped State
@@ -3856,10 +3876,10 @@ def random_province(arg):
     **Supported Scopes**: province
     **Supported Targets**: state
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_rival_country(arg):
+def random_rival_country(triggers, effects, mtth=""):
     """
 
     Any country that is rival to the country in a scope
@@ -3867,10 +3887,10 @@ def random_rival_country(arg):
     **Supported Scopes**: country
     **Supported Targets**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_scope_admiral(arg):
+def random_scope_admiral(triggers, effects, mtth=""):
     """
 
     Iterate through all admirals in a: country, interestgroup, or military formation
@@ -3878,10 +3898,10 @@ def random_scope_admiral(arg):
     **Supported Scopes**: country, front, interest_group, military_formation
     **Supported Targets**: character
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_scope_ally(arg):
+def random_scope_ally(triggers, effects, mtth=""):
     """
 
     Iterate through all allies to a: country
@@ -3889,10 +3909,10 @@ def random_scope_ally(arg):
     **Supported Scopes**: country
     **Supported Targets**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_scope_building(arg):
+def random_scope_building(triggers, effects, mtth=""):
     """
 
     Iterate through all buildings in a: state, country
@@ -3900,10 +3920,10 @@ def random_scope_building(arg):
     **Supported Scopes**: country, state
     **Supported Targets**: building
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_scope_character(arg):
+def random_scope_character(triggers, effects, mtth=""):
     """
 
     Iterate through all characters in a: country, interestgroup, or front
@@ -3911,10 +3931,10 @@ def random_scope_character(arg):
     **Supported Scopes**: country, front, interest_group, military_formation
     **Supported Targets**: character
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_scope_country(arg):
+def random_scope_country(triggers, effects, mtth=""):
     """
 
     Iterate through all countries with a presence in the supported scope (currently: market, strategic region)
@@ -3922,10 +3942,10 @@ def random_scope_country(arg):
     **Supported Scopes**: market, strategic_region
     **Supported Targets**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_scope_culture(arg):
+def random_scope_culture(triggers, effects, mtth=""):
     """
 
     Iterate through all cultures in the scope
@@ -3933,10 +3953,10 @@ def random_scope_culture(arg):
     **Supported Scopes**: country, state
     **Supported Targets**: culture
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_scope_diplomatic_pact(arg):
+def random_scope_diplomatic_pact(triggers, effects, mtth=""):
     """
 
     Any diplomatic pact of the country in a scope
@@ -3944,10 +3964,10 @@ def random_scope_diplomatic_pact(arg):
     **Supported Scopes**: country
     **Supported Targets**: diplomatic_pact
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_scope_front(arg):
+def random_scope_front(triggers, effects, mtth=""):
     """
 
     Iterate through all Fronts related to the scoped War
@@ -3955,10 +3975,10 @@ def random_scope_front(arg):
     **Supported Scopes**: war
     **Supported Targets**: front
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_scope_general(arg):
+def random_scope_general(triggers, effects, mtth=""):
     """
 
     Iterate through all generals in a: country, interestgroup, front, or military formation
@@ -3966,10 +3986,10 @@ def random_scope_general(arg):
     **Supported Scopes**: country, front, interest_group, military_formation
     **Supported Targets**: character
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_scope_held_interest_marker(arg):
+def random_scope_held_interest_marker(triggers, effects, mtth=""):
     """
 
     Iterate through all interest markers held by a country
@@ -3977,10 +3997,10 @@ def random_scope_held_interest_marker(arg):
     **Supported Scopes**: country
     **Supported Targets**: interest_marker
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_scope_initiator_ally(arg):
+def random_scope_initiator_ally(triggers, effects, mtth=""):
     """
 
     Iterate through all allies to an initiator in a: diplomatic play
@@ -3988,10 +4008,10 @@ def random_scope_initiator_ally(arg):
     **Supported Scopes**: diplomatic_play
     **Supported Targets**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_scope_interest_marker(arg):
+def random_scope_interest_marker(triggers, effects, mtth=""):
     """
 
     Iterate through all interest markers in a: country, strategic region
@@ -3999,10 +4019,10 @@ def random_scope_interest_marker(arg):
     **Supported Scopes**: country, strategic_region
     **Supported Targets**: interest_marker
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_scope_play_involved(arg):
+def random_scope_play_involved(triggers, effects, mtth=""):
     """
 
     Iterate through all involved in a: diplomatic play
@@ -4010,10 +4030,10 @@ def random_scope_play_involved(arg):
     **Supported Scopes**: diplomatic_play
     **Supported Targets**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_scope_politician(arg):
+def random_scope_politician(triggers, effects, mtth=""):
     """
 
     Iterate through all politicians in a: country or interestgroup
@@ -4021,10 +4041,10 @@ def random_scope_politician(arg):
     **Supported Scopes**: country, front, interest_group, military_formation
     **Supported Targets**: character
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_scope_pop(arg):
+def random_scope_pop(triggers, effects, mtth=""):
     """
 
     Iterate through all pops in a: country, state, interest group, culture
@@ -4032,10 +4052,10 @@ def random_scope_pop(arg):
     **Supported Scopes**: country, culture, interest_group, state
     **Supported Targets**: pop
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_scope_state(arg):
+def random_scope_state(triggers, effects, mtth=""):
     """
 
     Iterate through all states including provinces from a: country, state_region, theater, or front
@@ -4043,10 +4063,10 @@ def random_scope_state(arg):
     **Supported Scopes**: country, front, state_region, strategic_region, theater
     **Supported Targets**: state
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_scope_target_ally(arg):
+def random_scope_target_ally(triggers, effects, mtth=""):
     """
 
     Iterate through all allies to a target in a: diplomatic play
@@ -4054,10 +4074,10 @@ def random_scope_target_ally(arg):
     **Supported Scopes**: diplomatic_play
     **Supported Targets**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_scope_theater(arg):
+def random_scope_theater(triggers, effects, mtth=""):
     """
 
     Iterate through all theaters in a: country
@@ -4065,10 +4085,10 @@ def random_scope_theater(arg):
     **Supported Scopes**: country
     **Supported Targets**: theater
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_scope_violate_sovereignty_interested_parties(arg):
+def random_scope_violate_sovereignty_interested_parties(triggers, effects, mtth=""):
     """
 
     Iterate through all countries that would be interested if country in scope has their sovereignty violated
@@ -4076,10 +4096,10 @@ def random_scope_violate_sovereignty_interested_parties(arg):
     **Supported Scopes**: country
     **Supported Targets**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_scope_violate_sovereignty_wars(arg):
+def random_scope_violate_sovereignty_wars(triggers, effects, mtth=""):
     """
 
     Iterate through all relevant wars if target country had their sovereignty violated by scoped country
@@ -4087,10 +4107,10 @@ def random_scope_violate_sovereignty_wars(arg):
     **Supported Scopes**: country
     **Supported Targets**: war
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_scope_war(arg):
+def random_scope_war(triggers, effects, mtth=""):
     """
 
     Iterate through all wars related to the scope
@@ -4098,10 +4118,10 @@ def random_scope_war(arg):
     **Supported Scopes**: country
     **Supported Targets**: war
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_sea_node_adjacent_state(arg):
+def random_sea_node_adjacent_state(triggers, effects, mtth=""):
     """
 
     Iterate through all states that share a sea node with a state
@@ -4109,10 +4129,10 @@ def random_sea_node_adjacent_state(arg):
     **Supported Scopes**: state
     **Supported Targets**: state
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_state(arg):
+def random_state(triggers, effects, mtth=""):
     """
 
     Iterate through all states globally
@@ -4120,10 +4140,10 @@ def random_state(arg):
     **Supported Scopes**: none/all
     **Supported Targets**: state
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_state_region(arg):
+def random_state_region(triggers, effects, mtth=""):
     """
 
     Iterate through all state regions
@@ -4131,10 +4151,10 @@ def random_state_region(arg):
     **Supported Scopes**: none/all
     **Supported Targets**: state_region
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_strategic_objective(arg):
+def random_strategic_objective(triggers, effects, mtth=""):
     """
 
     Iterate through all Strategic Objective states from the scoped Country
@@ -4142,10 +4162,10 @@ def random_strategic_objective(arg):
     **Supported Scopes**: country
     **Supported Targets**: state
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_subject_or_below(arg):
+def random_subject_or_below(triggers, effects, mtth=""):
     """
 
     Any country below current in hierarchy
@@ -4153,10 +4173,10 @@ def random_subject_or_below(arg):
     **Supported Scopes**: country
     **Supported Targets**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_supporting_character(arg):
+def random_supporting_character(triggers, effects, mtth=""):
     """
 
     Iterate through all characters that support the scoped political movement
@@ -4164,10 +4184,10 @@ def random_supporting_character(arg):
     **Supported Scopes**: political_movement
     **Supported Targets**: character
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_supporting_interest_group(arg):
+def random_supporting_interest_group(triggers, effects, mtth=""):
     """
 
     Iterate through all interest groups supporting a political movement
@@ -4175,10 +4195,10 @@ def random_supporting_interest_group(arg):
     **Supported Scopes**: political_movement
     **Supported Targets**: interest_group
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_trade_route(arg):
+def random_trade_route(triggers, effects, mtth=""):
     """
 
     Iterate through all trade routes in a: market, country, marketgoods
@@ -4186,10 +4206,10 @@ def random_trade_route(arg):
     **Supported Scopes**: country, market, market_goods
     **Supported Targets**: trade_route
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_valid_mass_migration_culture(arg):
+def random_valid_mass_migration_culture(triggers, effects, mtth=""):
     """
 
     Lists for cultures in the scoped country that are valid for mass migration
@@ -4197,7 +4217,7 @@ def random_valid_mass_migration_culture(arg):
     **Supported Scopes**: country
     **Supported Targets**: culture
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
 def recalculate_pop_ig_support(arg):
@@ -4506,14 +4526,15 @@ def remove_variable(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def remove_war_goal(arg):
+def remove_war_goal(who, war_goal):
     """
 
     Removes a war goal from a DP.
-    any_diplomatic_play = { limit = { has_war_goal = return_state } remove_war_goal = { who = initiator war_goal = return_state } }
+    any_diplomatic_play = { limit = { has_war_goal = return_state }
+    remove_war_goal = { who = initiator war_goal = return_state } }
     **Supported Scopes**: diplomatic_play
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eq("who", who) + eq("war_goal", war_goal)))
 
 
 def resolve_play_for(arg):
@@ -4581,7 +4602,7 @@ def save_scope_value_as(arg):
     save_scope_value_as = { name = <string> value = x }
     **Supported Scopes**: none/all
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(arg))
 
 
 def save_temporary_scope_as(arg):
@@ -4601,10 +4622,10 @@ def save_temporary_scope_value_as(arg):
     save_temporary_scope_value_as = { name = <string> value = x }
     **Supported Scopes**: none/all
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(arg))
 
 
-def seize_investment_pool(arg):
+def seize_investment_pool(arg): # TODO borked?
     """
 
     Seize investment pool for the treasury and transfer all private construction queue elements to the government queue = bool
@@ -4735,17 +4756,18 @@ def set_global_variable(arg):
     Can also be used as set_variable = X (equivalent to set_variable = { name = X value = yes })
     **Supported Scopes**: none/all
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(arg))
 
 
-def set_government_wage_level(arg):
+def set_government_wage_level(level: Level):
     """
 
     Sets the government wage level of scoped country
     set_government_wage_level = very_low/low/medium/high/very_high
     **Supported Scopes**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    assert isinstance(level, Level)
+    return default(inspect.stack()[0][3], level.name)
 
 
 def set_home_country(arg):
@@ -4824,14 +4846,14 @@ def set_immune_to_revolutions(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def set_institution_investment_level(arg):
+def set_institution_investment_level(institution, level):
     """
 
     Sets the investment level for an institution
     set_institution_investment_level = { institution = <key> level = x }
     **Supported Scopes**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eq("institution", institution) + eq("level", level)))
 
 
 def set_interest_group_name(arg):
@@ -4880,17 +4902,18 @@ def set_market_capital(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def set_military_wage_level(arg):
+def set_military_wage_level(level: Level):
     """
 
     Sets the military wage level of scoped country
     set_military_wage_level = very_low/low/medium/high/very_high
     **Supported Scopes**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    assert isinstance(level, Level)
+    return default(inspect.stack()[0][3], level.name)
 
 
-def set_mutual_secret_goal(arg):
+def set_mutual_secret_goal(target, goal):
     """
 
     Set mutual secret AI goal for scope country and target country
@@ -4900,7 +4923,7 @@ def set_mutual_secret_goal(arg):
     }
     **Supported Scopes**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eq("tcountry", target) + eq("secret_goal", goal)))
 
 
 def set_next_election_date(arg):
@@ -4913,7 +4936,7 @@ def set_next_election_date(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def set_owes_obligation_to(arg):
+def set_owes_obligation_to(country, setting):
     """
 
     Set whether a country owes another a obligation
@@ -4923,20 +4946,20 @@ def set_owes_obligation_to(arg):
     }
     **Supported Scopes**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eq("country", country) + eq("setting", setting)))
 
 
-def set_owner_of_provinces(arg):
+def set_owner_of_provinces(country, provinces):
     """
 
     Gives a set of provinces in a state region to a specific country
     set_owner_of_provinces = { country = <scope> provinces = {} }
     **Supported Scopes**: state_region
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eq("country", country) + eq("provinces", provinces)))
 
 
-def set_pop_literacy(arg):
+def set_pop_literacy(literacy_rate):
     """
 
     Sets the literacy of the pop
@@ -4944,10 +4967,10 @@ def set_pop_literacy(arg):
     Where the ratio is a script value computing the percentage of (workforce) pops that will be literate
     **Supported Scopes**: pop
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eq("literacy_rate", literacy_rate)))
 
 
-def set_pop_qualifications(arg):
+def set_pop_qualifications(pop_type, qualifications):
     """
 
     Sets the pop qualifications of the pop for the given type
@@ -4955,7 +4978,7 @@ def set_pop_qualifications(arg):
     Where the qualifications is a script value computing the percentage of (workforce) pops that will have the qualifications
     **Supported Scopes**: pop
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eq("pop_type", pop_type) + eq("qualifications", qualifications)))
 
 
 def set_pop_wealth(arg):
@@ -4969,7 +4992,7 @@ def set_pop_wealth(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def set_relations(arg):
+def set_relations(target, value):
     """
 
     Set relations between two countries
@@ -4979,7 +5002,7 @@ def set_relations(arg):
     }
     **Supported Scopes**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eq("tcountry", target) + eq("value", value)))
 
 
 def set_ruling_interest_groups(arg):
@@ -5002,7 +5025,7 @@ def set_ruling_party(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def set_secret_goal(arg):
+def set_secret_goal(target, goal):
     """
 
     Set a secret AI goal for scope country towards another country
@@ -5012,7 +5035,7 @@ def set_secret_goal(arg):
     }
     **Supported Scopes**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eq("tcountry", target) + eq("secret_goal", goal)))
 
 
 def set_state_owner(arg):
@@ -5038,13 +5061,14 @@ def set_state_religion(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def set_state_type(arg):
+def set_state_type(type: StateType):
     """
 
     Sets a state to a certain type (incorporated, unincorporated, treaty_port)
     **Supported Scopes**: state
     """
-    return default(inspect.stack()[0][3], arg)
+    assert isinstance(type, StateType)
+    return default(inspect.stack()[0][3], type.name)
 
 
 def set_strategy(arg):
@@ -5110,17 +5134,18 @@ def set_tariffs_no_priority(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def set_tax_level(arg):
+def set_tax_level(level: Level):
     """
 
     Sets the overall tax level of scoped country
     set_tax_level = very_low/low/medium/high/very_high
     **Supported Scopes**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    assert isinstance(level, Level)
+    return default(inspect.stack()[0][3], level.name)
 
 
-def set_tension(arg):
+def set_tension(target, value):
     """
 
     Set tension between two countries
@@ -5130,7 +5155,7 @@ def set_tension(arg):
     }
     **Supported Scopes**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eq("tcountry", target) + eq("value", value)))
 
 
 def set_variable(arg):
@@ -5168,7 +5193,7 @@ def show_as_tooltip(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def start_building_construction(arg):
+def start_building_construction(arg): # TODO: buildings
     """
 
     Start constructing a building in a scoped state as a government construction
@@ -5178,7 +5203,7 @@ def start_building_construction(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def start_enactment(arg):
+def start_enactment(arg): # TODO: law types
     """
 
     Starts enacting the specified law type for the country in scope
@@ -5212,13 +5237,14 @@ def start_research_random_technology(arg):
 def start_tutorial_lesson(arg):
     """
 
-    Starts the tutorial lesson with the given key. Does nothing if the tutorial is not running, the lesson is completed (or already running), or the lesson cannot be triggered (e.g. trigger fails)
+    Starts the tutorial lesson with the given key. Does nothing if the tutorial is not running, the lesson is completed
+    (or already running), or the lesson cannot be triggered (e.g. trigger fails)
     **Supported Scopes**: none/all
     """
     return default(inspect.stack()[0][3], arg)
 
 
-def switch(arg):
+def switch(arg): # TODO multiple args
     """
 
     Switch on a trigger for the evaluation of another trigger with an optional fallback trigger.
@@ -5233,7 +5259,7 @@ def switch(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def take_on_scaled_debt(arg):
+def take_on_scaled_debt(who, value):
     """
 
     Transfers an amount of debt equal to the defined multiplier on target's max credit(arg):
@@ -5244,7 +5270,7 @@ def take_on_scaled_debt(arg):
     }
     **Supported Scopes**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eq("who", who) + eq("value", value)))
 
 
 def teleport_to_front(arg):
@@ -5333,14 +5359,24 @@ def violate_sovereignty_join(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def While(arg):
+def While(triggers, effects):
     """
 
-    Repeats enclosed effects while limit criteria are met or until set iteration count is reached
+    Repeats enclosed effects while limit criteria are met
     while = { limit = { <triggers> } <effects> }
+
+    **Supported Scopes**: none/all
+        """
+    return default("while", iterator(triggers, effects))
+
+
+def Whilefor(count, effects):
+    """
+
+    Repeats enclosed effects until set iteration count is reached
      while = { count = 3 <effects> }
         default max of 1000.(arg):
 
     **Supported Scopes**: none/all
         """
-    return default("while", arg)
+    return default("while", br(eq("count", count) + effects))
