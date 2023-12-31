@@ -1,7 +1,7 @@
 from event import Event, EventType, Option
 from scriptbase import ScriptFile
 import effects as ef
-import conditional as c
+import triggers as c
 
 # example event file named "csr_events" with 2 events:
 
@@ -27,6 +27,7 @@ Event(name="exampl",
       ]
 
       )
+
 
 Event(name="exampl2",
       event_type=EventType.country_event,

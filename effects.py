@@ -1,4 +1,4 @@
-from helpers import default, iterator, random_iterator, br, eq
+from helpers import default, iterator, random_iterator, br, eq, eqn
 import inspect
 from enum import Enum
 
@@ -17,10 +17,77 @@ class StateType(Enum):
     treaty_port = 3
 
 
+class Scope:
+    """ Currently unfinished in terms of verification and exhaustiveness """
+    def __init__(self, id, item, *effects):
+        self.prev = "root"
+        self.id = id
+        self.item = item
+        self.content = ""
+        for effect in effects:
+            self.content += effect + "\n"
+
+    def __str__(self):
+        return eq(self.id + ":" + self.item, br(self.content))
+
+    def type(self):
+        return "undef"
+
+
+class CountryScope(Scope):
+    def __init__(self, country_tag, *effects):
+        super().__init__("c", country_tag, effects)
+
+    def type(self):
+        return "country"
+
+
+class MarketGoodScope(Scope):
+    def __init__(self, good, *effects):
+        super().__init__("mg", good, effects)
+
+    def type(self):
+        return "market_goods"
+
+
+class StateScope(Scope):
+    def __init__(self, state_tag, *effects):
+        super().__init__("s", state_tag, effects)
+
+    def type(self):
+        return "state"
+
+
+class CultureScope(Scope):
+    def __init__(self, culture, *effects):
+        super().__init__("cu", culture, effects)
+
+    def type(self):
+        return "culture"
+
+
+class RegionScope(Scope):
+    def __init__(self, state_region, *effects):
+        super().__init__("sr", state_region, effects)
+
+    def type(self):
+        return "state_region"
+
+
+class IGScope(Scope):
+    def __init__(self, ig, *effects):
+        super().__init__("ig", ig, effects)
+
+    def type(self):
+        return "interest_group"
+
+
+global current_scope
+
 # TODO: most effects are unfinished
 
 
-def abandon_revolution(arg):
+def abandon_revolution(arg="yes"):
     """
     Removes interest group from revolution
     abandon_revolution = yes/no
@@ -29,24 +96,24 @@ def abandon_revolution(arg):
     return default("abandon_revolution", arg)
 
 
-def activate_building(arg):
+def activate_building(building):
     """
 
     Activate a building in a state
     activate_building = { building = building_key }
     **Supported Scopes**: state
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eq("building", building)))
 
 
-def activate_law(arg):
+def activate_law(law):
     """
 
     Activates a law for a country
     **Supported Scopes**: country
     **Supported Targets**: law_type
     """
-    return default("activate_law", arg)
+    return default("activate_law", law)
 
 
 def activate_production_method(arg):
@@ -78,7 +145,7 @@ def add_banned_goods(arg):
     return default("add_banned_goods", arg)
 
 
-def add_change_relations_progress(arg):
+def add_change_relations_progress(target, value):
     """
 
     Add progress towards changing relations between two countries
@@ -88,7 +155,7 @@ def add_change_relations_progress(arg):
     }
     **Supported Scopes**: country
     """
-    return default("add_change_relations_progress", arg)
+    return default("add_change_relations_progress", br(eq("tcountry", target) + eq("value", value)))
 
 
 def add_character_role(arg):
@@ -111,7 +178,7 @@ def add_civil_war_progress(arg):
     return default("add_civil_war_progress", arg)
 
 
-def add_claim(arg):
+def add_claim(country):
     """
 
     Adds scoped state region as a claim for target country
@@ -119,7 +186,7 @@ def add_claim(arg):
     **Supported Scopes**: state_region
     **Supported Targets**: country
     """
-    return default("add_claim", arg)
+    return default("add_claim", country)
 
 
 def add_commander_rank(arg):
@@ -181,14 +248,14 @@ def add_devastation(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def add_diplomatic_play_war_support(arg):
+def add_diplomatic_play_war_support(target, value):
     """
 
     Adds war support to the target country in the scoped diplomatic play. The amount will appear under the 'situations' header in tooltips
     add_diplomatic_play_war_support = { target = country value = value }
     **Supported Scopes**: diplomatic_play
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eq("target", target) + eq("value", value)))
 
 
 def add_enactment_modifier(arg):
@@ -302,14 +369,14 @@ def add_investment_pool(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def add_journal_entry(arg):
+def add_journal_entry(type, target):
     """
 
     Adds a journal entry to a scoped country's journal, with optional saved scope target
     add_journal_entry = { type = <key> target = <scope> }
     **Supported Scopes**: none/all
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eq("type", type) + eq("target", target)))
 
 
 def add_law_progress(arg):
@@ -322,7 +389,7 @@ def add_law_progress(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def add_loyalists(arg):
+def add_loyalists(value, ig, pop_type, strata, culture, religion):
     """
 
     Adds loyalists to pops in scope country, all parameters except value are optional,
@@ -338,10 +405,15 @@ def add_loyalists(arg):
     }
     **Supported Scopes**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eqn("value", value) +
+                                             eqn("interest_group", ig) +
+                                             eqn("pop_type", pop_type) +
+                                             eqn("strata", strata) +
+                                             eqn("culture", culture) +
+                                             eq("religion", religion)))
 
 
-def add_loyalists_in_state(arg):
+def add_loyalists_in_state(value, ig, pop_type, strata, culture, religion):
     """
 
     Adds loyalists to pops in scope state, all parameters except value are optional,
@@ -357,7 +429,12 @@ def add_loyalists_in_state(arg):
     }
     **Supported Scopes**: state
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eqn("value", value) +
+                                             eqn("interest_group", ig) +
+                                             eqn("pop_type", pop_type) +
+                                             eqn("strata", strata) +
+                                             eqn("culture", culture) +
+                                             eq("religion", religion)))
 
 
 def add_modifier(arg):
@@ -408,7 +485,7 @@ def add_pollution(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def add_pop_wealth(arg):
+def add_pop_wealth(wealth_distribution, update_loyalties):
     """
 
     Adds the wealth of the pop
@@ -416,7 +493,8 @@ def add_pop_wealth(arg):
     Where the distribution adding to wealth of the pop
     **Supported Scopes**: pop
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eqn("wealth_distribution", wealth_distribution) +
+                                             eq("update_loyalties", update_loyalties)))
 
 
 def add_primary_culture(arg):
@@ -431,7 +509,7 @@ def add_primary_culture(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def add_radicals(arg):
+def add_radicals(value, ig, pop_type, strata, culture, religion):
     """
 
     Adds radicals to pops in scope country, all parameters except value are optional,
@@ -447,10 +525,15 @@ def add_radicals(arg):
     }
     **Supported Scopes**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eqn("value", value) +
+                                             eqn("interest_group", ig) +
+                                             eqn("pop_type", pop_type) +
+                                             eqn("strata", strata) +
+                                             eqn("culture", culture) +
+                                             eq("religion", religion)))
 
 
-def add_radicals_in_state(arg):
+def add_radicals_in_state(value, ig, pop_type, strata, culture, religion):
     """
 
     Adds radicals to pops in scope state, all parameters except value are optional,
@@ -466,7 +549,12 @@ def add_radicals_in_state(arg):
     }
     **Supported Scopes**: state
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eqn("value", value) +
+                                             eqn("interest_group", ig) +
+                                             eqn("pop_type", pop_type) +
+                                             eqn("strata", strata) +
+                                             eqn("culture", culture) +
+                                             eq("religion", religion)))
 
 
 def add_random_trait(arg):
@@ -776,7 +864,7 @@ def change_infamy(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def change_institution_investment_level(arg):
+def change_institution_investment_level(institution, investment):
     """
 
     Add/remove the investment level for the institution
@@ -786,7 +874,8 @@ def change_institution_investment_level(arg):
     }
     **Supported Scopes**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eqn("institution", institution) +
+                                             eq("investment", investment)))
 
 
 def change_local_variable(arg):
@@ -802,24 +891,24 @@ def change_local_variable(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def change_pop_culture(arg):
+def change_pop_culture(target, value):
     """
 
     Changes the culture of the scoped pop to a specified culture by a specified percentage
     change_pop_culture = { target = cu:spanish value = 0.33 }
     **Supported Scopes**: pop
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eq("target", target) + eq("value", value)))
 
 
-def change_pop_religion(arg):
+def change_pop_religion(target, value):
     """
 
     Changes the religion of the scoped pop to a specified religion by a specified percentage
     change_pop_religion = { target = rel:catholic value = 0.5 }
     **Supported Scopes**: pop
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eq("target", target) + eq("value", value)))
 
 
 def change_poptype(arg):
@@ -832,7 +921,7 @@ def change_poptype(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def change_relations(arg):
+def change_relations(target, value):
     """
 
     Change relations between two countries
@@ -842,7 +931,7 @@ def change_relations(arg):
     }
     **Supported Scopes**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eq("tcountry", target) + eq("value", value)))
 
 
 def change_subject_type(arg):
@@ -865,7 +954,7 @@ def change_tag(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def change_tension(arg):
+def change_tension(target, value):
     """
 
     Change tension between two countries
@@ -875,7 +964,7 @@ def change_tension(arg):
     }
     **Supported Scopes**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eq("tcountry", target) + eq("value", value)))
 
 
 def change_variable(arg):
@@ -1006,14 +1095,14 @@ def complete_objective_subgoal(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def convert_population(arg):
+def convert_population(target, value):
     """
 
     Changes X% of the different religion population to the specified religion.
     convert_population = { target = rel:catholic value = 0.5 }
     **Supported Scopes**: state
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(eq("target", target) + eq("value", value)))
 
 
 def copy_laws(arg):
@@ -1027,6 +1116,8 @@ def copy_laws(arg):
     """
     return default(inspect.stack()[0][3], arg)
 
+
+# TODO: creates
 
 def create_building(arg):
     """

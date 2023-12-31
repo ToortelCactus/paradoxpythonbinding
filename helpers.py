@@ -5,11 +5,15 @@ def br(content: str, layer=0) -> str:
 
 
 def eq(a: str, b: str) -> str:
-    return a + " = " + b
+    return a + " = " + b + " "
+
+
+def eqn(a: str, b: str) -> str:
+    return a + " = " + b + "\n"
 
 
 def ge(a: str, b: str) -> str:
-    return a + " > " + b
+    return a + " > " + b + " "
 
 
 def default(function_name: str, assigned_val: str) -> str:
