@@ -1,4 +1,4 @@
-from helpers import eq, br, effects_to_script
+from helpers import eq, br, list_to_text
 
 
 class Option:
@@ -31,7 +31,7 @@ class Option:
             content += eq("trigger", br(self.trigger, 2)) + "\n"
 
         # effect items
-        content += effects_to_script(self.effects)
+        content += list_to_text(self.effects)
 
         content += self.addendum
         return content

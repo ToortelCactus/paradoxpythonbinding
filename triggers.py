@@ -1,5 +1,7 @@
 import inspect
-from helpers import default, iterator, br, eq, ge
+from helpers import default, iterator, br, eq, ge, default_list
+
+from typing import List
 
     
 def active_lens(arg):
@@ -59,24 +61,6 @@ def all_false(arg):
     true if all children are false (equivalent to NOR)
     **Supported Scopes**: none/all"""
     return default(inspect.stack()[0][3], arg)
-    
-    
-def always(arg):
-    """
-    checks if the assigned yes/no value is true
-    always = yes # always succeeds
-    always = no  # always fails
-    always = scope:a_boolean_value # evaluated at runtime
-    Traits: yes/no
-    **Supported Scopes**: none/all"""
-    return default(inspect.stack()[0][3], arg)
-    
-    
-def And(arg):
-    """
-    all inside trigger must be true
-    **Supported Scopes**: none/all"""
-    return default("and", arg)
     
     
 def any_active_party(arg):
@@ -1419,14 +1403,6 @@ def escalation(arg):
     return default(inspect.stack()[0][3], arg)
     
     
-def exists(arg):
-    """
-    Checks whether the specified scope target exists (check for not being the null object)
-    exists = from.owner.var:cool_var.mother
-    **Supported Scopes**: none/all"""
-    return default(inspect.stack()[0][3], arg)
-    
-    
 def expanding_institution(arg):
     """
     Checks if the institution is expanding
@@ -1491,14 +1467,6 @@ def front_side_pm_usage(arg):
     front_side_pm_usage = { target = X production_method = Y value <comparator> Z}
     where X = country scope and Y = production method key and Z = value to compare toTraits: <, <=, =, !=, >, >=
     **Supported Scopes**: front"""
-    return default(inspect.stack()[0][3], arg)
-    
-    
-def game_date(arg):
-    """
-    Compare to current game date
-    current_game_date = 1837.1.1Traits: <, <=, =, !=, >, >=
-    **Supported Scopes**: none/all"""
     return default(inspect.stack()[0][3], arg)
     
     
@@ -4053,14 +4021,6 @@ def military_wage_level_value(arg):
     return default(inspect.stack()[0][3], arg)
     
     
-def month(arg):
-    """
-    Compare to current game date month (Jan: 0, Dec: 11)
-    month > 10Traits: <, <=, =, !=, >, >=
-    **Supported Scopes**: none/all"""
-    return default(inspect.stack()[0][3], arg)
-    
-    
 def most_powerful_strata(arg):
     """
     Compares an interest groups most powerful strata
@@ -4073,13 +4033,6 @@ def most_prominent_revolting_interest_group(arg):
     Checks if the most prominent revolting interest group in the scoped state has the given interest group type. Evaluates false if the scoped state is not in revolt.
     most_prominent_revolting_interest_group = ig_landowners
     **Supported Scopes**: state"""
-    return default(inspect.stack()[0][3], arg)
-    
-    
-def nand(arg):
-    """
-    a negated AND trigger
-    **Supported Scopes**: none/all"""
     return default(inspect.stack()[0][3], arg)
     
     
@@ -4103,21 +4056,7 @@ def night_value(arg):
     Night valueTraits: <, <=, =, !=, >, >=
     **Supported Scopes**: none/all"""
     return default(inspect.stack()[0][3], arg)
-    
-    
-def nor(arg):
-    """
-    a negated OR trigger
-    **Supported Scopes**: none/all"""
-    return default(inspect.stack()[0][3], arg)
-    
-    
-def Not(arg):
-    """
-    negates content of trigger
-    **Supported Scopes**: none/all"""
-    return default("not", arg)
-    
+
     
 def num_casualties(arg):
     """
@@ -4213,13 +4152,6 @@ def occupancy(arg):
     occupancy < 0.25Traits: <, <=, =, !=, >, >=
     **Supported Scopes**: building"""
     return default(inspect.stack()[0][3], arg)
-    
-    
-def Or(arg):
-    """
-    at least one entry inside trigger must be true
-    **Supported Scopes**: none/all"""
-    return default("or", arg)
     
     
 def organization(arg):
@@ -4924,10 +4856,7 @@ def was_exiled(arg):
     
 def was_formed_from(arg):
     """
-    Check if a formed country previously had a specific     return default(inspect.stack()[0][3], arg)
-    
-    
-definition
+    Check if a formed country previously had a specific definition
     was_formed_from = <tag>
     **Supported Scopes**: country"""
     return default(inspect.stack()[0][3], arg)
@@ -4963,22 +4892,102 @@ def weighted_calc_true_if(arg):
     weighted_calc_true_if = { amount = 10 5 = { <trigger> } 15 = { <trigger> } 7 = { <trigger> } }
     **Supported Scopes**: none/all"""
     return default(inspect.stack()[0][3], arg)
-    
-    
-def year(arg):
+
+
+# actually properly finished ones:
+
+def year(arg: str):
     """
-    usage: year("year != 1860")
+    usage: year("!= 1860")
+    -> year != 1860
 
     Compares the current year of the game
     year > 1850 Traits: <, <=, =, !=, >, >=
     **Supported Scopes**: none/all"""
-    return arg
+    return inspect.stack()[0][3] + " " + arg
 
 
-def year_since(arg):
+def year_after(arg):
     """
     Compares the current year of the game
     year > 1850 Traits: >
     **Supported Scopes**: none/all"""
-    return ge(inspect.stack()[0][3], arg)
+    return ge("year", arg)
 
+
+def Not(triggers: List[str]):
+    """
+    negates content of trigger
+    **Supported Scopes**: none/all"""
+    return default_list("not", triggers)
+
+
+def Or(triggers: List[str]):
+    """
+    at least one entry inside trigger must be true
+    **Supported Scopes**: none/all"""
+    return default_list("or", triggers)
+
+
+def nor(triggers: List[str]):
+    """
+    a negated OR trigger
+    **Supported Scopes**: none/all"""
+    return default_list(inspect.stack()[0][3], triggers)
+
+
+def nand(triggers: List[str]):
+    """
+    a negated AND trigger
+    **Supported Scopes**: none/all"""
+    return default_list(inspect.stack()[0][3], triggers)
+
+
+def And(triggers: List[str]):
+    """
+    all inside trigger must be true
+    **Supported Scopes**: none/all"""
+    return default_list("and", triggers)
+
+
+def month(arg: str):
+    """
+    usage: month("!= 10")
+    -> month != 10
+
+    Compare to current game date month (Jan: 0, Dec: 11)
+    month > 10
+    Traits: <, <=, =, !=, >, >=
+    **Supported Scopes**: none/all"""
+    return inspect.stack()[0][3] + " " + arg
+
+
+def always(arg):
+    """
+    checks if the assigned yes/no value is true
+    always = yes # always succeeds
+    always = no  # always fails
+    always = scope:a_boolean_value # evaluated at runtime
+    Traits: yes/no
+    **Supported Scopes**: none/all"""
+    return default(inspect.stack()[0][3], arg)
+
+
+def exists(arg):
+    """
+    Checks whether the specified scope target exists (check for not being the null object)
+    exists = from.owner.var:cool_var.mother
+    **Supported Scopes**: none/all"""
+    return default(inspect.stack()[0][3], arg)
+
+
+def game_date(arg: str):
+    """
+    usage: game_date("!= 1839.1.5")
+    -> game_date != 1839.1.5
+
+    Compare to current game date
+    current_game_date = 1837.1.1
+    Traits: <, <=, =, !=, >, >=
+    **Supported Scopes**: none/all"""
+    return inspect.stack()[0][3] + " " + arg

@@ -1,12 +1,12 @@
 from event import Event, EventType, Option
-from scriptbase import ScriptFile
+from scriptbase import EventFile
 import effects as ef
 import triggers as c
 
 # example event file named "csr_events" with 2 events:
 
 
-ScriptFile("csr_events", "europe")
+EventFile("csr_events", "europe")
 
 Event(name="exampl",
       event_type=EventType.country_event,
@@ -34,8 +34,8 @@ Event(name="exampl2",
       effects=[],
       trigger=[
             c.exists("c:BRZ"),
-            c.year_since("1900"),
-            c.Not("this = c:BRZ")
+            c.year_after("1900"),
+            c.Not(["this = c:BRZ"])
       ],
       icon_path="gfx/interface/icons/event_icons/event_protest.dds",
       duration=3,
@@ -44,11 +44,12 @@ Event(name="exampl2",
       opened_sfx_path="event:/SFX/Events/unspecific/leader_speaking_to_a_group_of_people",
       options=[
             Option(
-                  [ef.change_tag("BRZ")],  # You are going to Brazil
+                  [ef.change_tag("BRZ")],  # *You are going to Brazil*
                   is_highlighted=True
             ),
             Option(
-                  [ef.change_tag("BRZ")]  # You are going to Brazil
+                  [ef.change_tag("BRZ"),
+                   ef.call_election(6)]  # You are going to Brazil and have an election
             ),
             Option(
                   [ef.change_tag("BRZ")]  # You are going to Brazil

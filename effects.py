@@ -1141,7 +1141,23 @@ def create_building(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def create_character(arg):
+def create_character(name: str = "",
+                     culture: str = "",
+                     religion: str = "",
+                     female: bool = False,
+                     noble: bool = False,
+                     ruler: bool = False,
+                     heir: bool = False,
+                     historical: bool = False,
+                     age: str = "25",
+                     ideology: str = "",
+                     ig: str = "",
+                     template: str = "",
+                     on_created: str = "",
+                     save_scope_as: str = "",
+                     trait_generation: str = "",
+                     hq: str = ""
+                     ):
     """
 
     Creates a character, any option can be omitted.

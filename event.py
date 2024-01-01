@@ -1,4 +1,4 @@
-from helpers import eq, br, effects_to_script
+from helpers import eq, br, list_to_text
 from enum import Enum
 from scriptbase import getlocalscriptfile
 from options import Option
@@ -72,9 +72,9 @@ class Event:
         self.on_created_soundeffect(created_sfx_path)
         self.on_opened_soundeffect(opened_sfx_path)
         self.options(options)
+        self.addendum = ""
 
         getlocalscriptfile().export(str(self))
-        self.addendum = ""
 
     def type(self, ty: EventType):
         self.data["type"] = ty.name
@@ -95,12 +95,12 @@ class Event:
         return self
 
     def immediate(self, effects: list):
-        self.brdata["immediate"] = effects_to_script(effects)
+        self.brdata["immediate"] = list_to_text(effects)
         return self
 
     def trigger(self, conditionals: list):
         if conditionals:
-            self.brdata["trigger"] = effects_to_script(conditionals)
+            self.brdata["trigger"] = list_to_text(conditionals)
         return self
 
     def cancellation_trigger(self, conditional):
