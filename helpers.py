@@ -11,6 +11,8 @@ def tab_contents(contents: str):
 
 def add_if_defined(name: str, content):
     if content:
+        if isinstance(content, bool):
+            return eq(name, str(content).lower()) + "\n"
         return eq(name, content) + "\n"
     return ""
 

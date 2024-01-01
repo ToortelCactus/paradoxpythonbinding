@@ -1,5 +1,6 @@
 from event import Event, EventType, Option
-from scriptbase import EventFile
+from character import Character
+from scriptbase import EventFile, HistoryFile
 import effects as ef
 import triggers as c
 
@@ -26,7 +27,7 @@ Event(name="exampl",
             )
       ]
 
-      )
+)
 
 
 Event(name="exampl2",
@@ -59,4 +60,15 @@ Event(name="exampl2",
             )
       ]
 
-      )
+)
+
+# example of history characters in common/history
+HistoryFile(HistoryFile.Category.characters, "cng - congo")
+
+Character(
+      first_name="Ogutu",
+      last_name="M'beke",
+      historical=True,
+      traits=["career_media_personality",
+              "humorous"]
+)

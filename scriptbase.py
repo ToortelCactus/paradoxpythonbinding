@@ -18,10 +18,7 @@ class EventFile(ScriptFile):
         self.name = file
 
         # create directory if needed
-        try:
-            os.mkdir(folder)
-        except FileExistsError:
-            pass
+        os.makedirs(folder, exist_ok=True)
 
         self.filepath = folder + "/" + file
         with open(self.filepath + ".txt", "w") as f: # TODO: yeet out of base class
@@ -47,6 +44,9 @@ class HistoryFile(ScriptFile):
         folder = "common/history/" + category.name
         file = country
 
+        # create directory if needed
+        os.makedirs(folder, exist_ok=True)
+
         self.tag = country[:3]
         self.content = ""
         self.category = category
@@ -55,9 +55,12 @@ class HistoryFile(ScriptFile):
         global currentFile
         currentFile = self
 
+        # hack - python shenanigans make "open" disappear in __del__
+        self.f = open(self.filepath + ".txt", "w")
+
     def __del__(self):
-        with open(self.filepath + ".txt", "w") as f:
-            f.write(eq(self.category.name.upper(), br(eq("c:" + self.tag, self.content))) + "\n")
+        self.f.write(eq(self.category.name.upper(), br(eq("c:" + self.tag, br(self.content)))) + "\n")
+        self.f.close()  # the other part of hack
 
     def export(self, text: str):
         self.content += text + "\n\n"
