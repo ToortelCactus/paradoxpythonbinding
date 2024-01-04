@@ -1,6 +1,7 @@
 import os
 from enum import Enum
 from helpers import br, eq
+from defines import *
 
 global currentFile
 currentFile = None
@@ -20,8 +21,8 @@ class EventFile(ScriptFile):
         # create directory if needed
         os.makedirs(folder, exist_ok=True)
 
-        self.filepath = folder + "/" + file
-        with open(self.filepath + ".txt", "w") as f: # TODO: yeet out of base class
+        self.filepath = MOD_PATH + "events/" + folder + "/" + file
+        with open(self.filepath + ".txt", "w") as f:
             f.write("namespace = " + file + "\n\n")
 
         global currentFile
@@ -29,6 +30,25 @@ class EventFile(ScriptFile):
 
     def export(self, text: str):
         with open(self.filepath + ".txt", "a") as f:
+            f.write(text + "\n\n\n")
+
+
+class DecisionFile(ScriptFile):
+    def __init__(self, file: str, folder: str = ""):
+        """ file= 'usa_decisions', folder= 'USA_decisions/another_folder'"""
+        self.name = file
+        folder = MOD_PATH + "common/decisions/" + folder
+
+        # create directory if needed
+        os.makedirs(folder, exist_ok=True)
+
+        self.filepath = folder + "/" + file
+
+        global currentFile # TODO: into base class
+        currentFile = self
+
+    def export(self, text: str):
+        with open(self.filepath + ".txt", "w") as f:
             f.write(text + "\n\n\n")
 
 
@@ -41,7 +61,7 @@ class HistoryFile(ScriptFile):
 
     def __init__(self, category: Category, country: str):
         """ country= 'arg - argentina' (<tag> - <full name>)"""
-        folder = "common/history/" + category.name
+        folder = MOD_PATH + "common/history/" + category.name
         file = country
 
         # create directory if needed

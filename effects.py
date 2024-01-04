@@ -1,6 +1,7 @@
-from helpers import default, iterator, random_iterator, br, eq, eqn
+from helpers import default, iterator, random_iterator, br, eq, eqn, default_list
 import inspect
 from enum import Enum
+from typing import List
 
 
 class Level(Enum):
@@ -1182,7 +1183,7 @@ def create_character(name: str = "",
     }
     **Supported Scopes**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default(inspect.stack()[0][3], br(name)) # TODO heavily unfinished
 
 
 def create_country(arg):
@@ -1203,7 +1204,7 @@ def create_country(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def create_diplomatic_pact(arg):
+def create_diplomatic_pact(country, first_state, second_state, type):
     """
 
     Create a diplomatic pact between two countries, with scope country as initiator
@@ -1215,10 +1216,21 @@ def create_diplomatic_pact(arg):
     }
     **Supported Scopes**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default_list(inspect.stack()[0][3], [eq("country", country),
+                                                eq("first_state", first_state),
+                                                eq("second_state", second_state),
+                                                eq("type", type)])
 
 
-def create_diplomatic_play(arg):
+def create_diplomatic_play(name,
+                           escalation,
+                           initiator,
+                           type,
+                           war: bool = False,
+                           civil_war: bool = False,
+                           initiator_backers: List[str] = [],
+                           target_backers: List[str] = [],
+                           wargoal = "USE THE FUNCTION"): # TODO find a better solution
     """
 
     Create a diplomatic play with the scoped object as target
@@ -1235,7 +1247,18 @@ def create_diplomatic_play(arg):
     }
     **Supported Scopes**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default_list(inspect.stack()[0][3],
+                        [
+                            eq("name", name),
+                            eq("escalation", escalation),
+                            eq("war", str(war).lower()),
+                            eq("initiator", initiator),
+                            eq("type", type),
+                            eq("handle_annexation_as_civil_war", str(civil_war).lower()),
+                            default_list("add_initiator_backers", initiator_backers),
+                            default_list("add_target_backers", target_backers),
+                            wargoal
+                        ])
 
 
 def create_dynamic_country(arg):
@@ -1261,7 +1284,7 @@ def create_dynamic_country(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def create_incident(arg):
+def create_incident(target, value):
     """
 
     Creates a diplomatic incident that generates infamy, with target country as the victim
@@ -1271,10 +1294,14 @@ def create_incident(arg):
     }
     **Supported Scopes**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default_list(inspect.stack()[0][3],
+                        [
+                            eq("tcountry", target),
+                            eq("value", value)
+                        ])
 
 
-def create_mass_migration(arg):
+def create_mass_migration(origin, culture):
     """
 
     Initiates mass migration of a specific culture from a origin country to a scoped state
@@ -1284,7 +1311,11 @@ def create_mass_migration(arg):
     }
     **Supported Scopes**: state
     """
-    return default(inspect.stack()[0][3], arg)
+    return default_list(inspect.stack()[0][3],
+                        [
+                            eq("origin", origin),
+                            eq("culture", culture)
+                        ])
 
 
 def create_military_formation(arg):
@@ -1336,7 +1367,7 @@ def create_state(arg):
     return default("create_state", arg)
 
 
-def create_trade_route(arg):
+def create_trade_route(arg): # TODO: split into: create import/export
     """
 
     Creates a new Trade Route
@@ -1352,7 +1383,7 @@ def create_trade_route(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def create_truce(arg):
+def create_truce(target, months):
     """
 
     Create a truce betweeen two countries
@@ -1362,7 +1393,11 @@ def create_truce(arg):
     }
     **Supported Scopes**: country
     """
-    return default(inspect.stack()[0][3], arg)
+    return default_list(inspect.stack()[0][3],
+                        [
+                            eq("tcountry", target),
+                            eq("months", months)
+                        ])
 
 
 def custom_description(arg):

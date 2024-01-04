@@ -12,8 +12,8 @@ def tab_contents(contents: str):
 def add_if_defined(name: str, content):
     if content:
         if isinstance(content, bool):
-            return eq(name, str(content).lower()) + "\n"
-        return eq(name, content) + "\n"
+            return eqn(name, str(content).lower())
+        return eqn(name, content)
     return ""
 
 
@@ -26,6 +26,7 @@ def eq(a: str, b: str) -> str:
 
 
 def eqn(a: str, b: str) -> str:
+    """ like eq, but with newline """
     return a + " = " + b + "\n"
 
 
@@ -38,19 +39,20 @@ def default(function_name: str, assigned_val: str) -> str:
 
 
 def default_list(function_name: str, assigned_list: List[str]) -> str:
+    """ when multiple parameters need to be inserted """
     return eq(function_name, list_to_text(assigned_list))
 
 
 def iterator(filter: str, effects: str) -> str:
     """{ limit = { <triggers> } <effects> }"""
-    return br(eq("limit", br(filter)) + "\n" + effects)
+    return br(eqn("limit", br(filter)) + effects)
 
 
 def random_iterator(filter: str, effects: str, mtth: str = ""):
     """{ limit = { <triggers> } (optional) weight = { mtth } <effects> }"""
     if mtth:
         mtth = eq("weight", br(mtth))
-    return br(eq("limit", br(filter)) + "\n" + mtth + "\n" + effects)
+    return br(eqn("limit", br(filter)) + mtth + "\n" + effects)
 
 
 def list_to_text(effects: list) -> str:
