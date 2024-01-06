@@ -4,7 +4,7 @@ from modifier import Modifier
 from scriptbase import EventFile, HistoryFile, ModifierFile
 import effects as ef
 import triggers as c
-from parsing.modifier_type import Modifier_type as mf
+from parsing.generated.modifier_type import Modifier_type as mf
 
 
 # example event file named "csr_events" with 2 events:

@@ -34,7 +34,7 @@ def valid_chars(char):
 
 
 def parse_files(path: str, output_name: str, recursive=False):
-    with open(output_name + ".py", "w") as output:
+    with open("generated/" + output_name + ".py", "w") as output:
         output.write("from enum import Enum\n\n\n")
         output_name = output_name[0].upper() + output_name[1:]
         output.write("class " + output_name + "(Enum):\n")

@@ -1,7 +1,7 @@
 from typing import List, Tuple
 from helpers import eq, default_list
 from scriptbase import getlocalscriptfile
-from parsing.modifier_type import Modifier_type
+from parsing.generated.modifier_type import Modifier_type
 
 
 class Modifier:
