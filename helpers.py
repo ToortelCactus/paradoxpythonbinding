@@ -40,7 +40,7 @@ def default(function_name: str, assigned_val: str) -> str:
 
 def default_list(function_name: str, assigned_list: List[str]) -> str:
     """ when multiple parameters need to be inserted """
-    return eq(function_name, list_to_text(assigned_list))
+    return eq(function_name, br(list_to_text(assigned_list)))
 
 
 def iterator(filter: str, effects: str) -> str:

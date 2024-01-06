@@ -17,11 +17,12 @@ class EventFile(ScriptFile):
     def __init__(self, file: str, folder: str = ""):
         """ file= 'usa_events', folder= 'USA_events/another_folder'"""
         self.name = file
+        folder = MOD_PATH + "events/" + folder
 
         # create directory if needed
         os.makedirs(folder, exist_ok=True)
 
-        self.filepath = MOD_PATH + "events/" + folder + "/" + file
+        self.filepath = folder + "/" + file
         with open(self.filepath + ".txt", "w") as f:
             f.write("namespace = " + file + "\n\n")
 
@@ -52,7 +53,30 @@ class DecisionFile(ScriptFile):
             f.write(text + "\n\n\n")
 
 
+class ModifierFile(ScriptFile):
+    def __init__(self, file: str, folder: str = ""):
+        """ file= 'some_modifiers', folder= 'USA/another_folder'"""
+        self.name = file
+        folder = MOD_PATH + "common/modifiers/" + folder
+
+        # create directory if needed
+        os.makedirs(folder, exist_ok=True)
+
+        self.filepath = folder + "/" + file
+
+        global currentFile # TODO: into base class
+        currentFile = self
+
+    def export(self, text: str):
+        with open(self.filepath + ".txt", "w") as f:
+            f.write(text + "\n\n\n")
+
+
 class HistoryFile(ScriptFile):
+    """
+    REMOVES EVERYTHING IN ORIGINAL FILE
+    TODO: something has to be done about that...
+    """
     class Category(Enum):
         characters = 1
         population = 2

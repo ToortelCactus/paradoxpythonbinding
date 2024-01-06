@@ -1,11 +1,13 @@
 from event import Event, EventType, Option
 from character import Character
-from scriptbase import EventFile, HistoryFile
+from modifier import Modifier
+from scriptbase import EventFile, HistoryFile, ModifierFile
 import effects as ef
 import triggers as c
+from parsing.modifier_type import Modifier_type as mf
+
 
 # example event file named "csr_events" with 2 events:
-
 
 EventFile("csr_events", "europe")
 
@@ -72,3 +74,19 @@ Character(
       traits=["career_media_personality",
               "humorous"]
 )
+
+# Modifiers example
+ModifierFile("notmodifiers")
+
+protest_icon = "gfx/interface/icons/event_icons/event_protest.dds"
+
+Modifier(
+      "shrimple_country_modifier",
+      protest_icon,
+      [
+            (mf.interest_group_ig_urbanists_approval_add, "1"),
+            (mf.interest_group_ig_bureaucrats_approval_add, "2.5")
+      ]
+)
+
+
