@@ -3,6 +3,13 @@ import inspect
 from enum import Enum
 from typing import List
 
+from effect.country import CountryEffect
+from parsing.generated.country import Country
+from parsing.generated.interest_group import Interest_group
+from parsing.generated.religion import Religion
+from parsing.generated.building import Building
+from parsing.generated.culture import Culture
+
 
 class Level(Enum):
     very_low = 1
@@ -20,13 +27,16 @@ class StateType(Enum):
 
 class Scope:
     """ Currently unfinished in terms of verification and exhaustiveness """
-    def __init__(self, id, item, *effects):
+    def __init__(self, key, item, *effects):
         self.prev = "root"
-        self.id = id
+        if isinstance(key, Enum):
+            self.id = key.name
+        else:
+            self.id = key
         self.item = item
         self.content = ""
         for effect in effects:
-            self.content += effect + "\n"
+            self.content += str(effect) + "\n"
 
     def __str__(self):
         return eq(self.id + ":" + self.item, br(self.content))
@@ -35,15 +45,15 @@ class Scope:
         return "undef"
 
 
-class CountryScope(Scope):
-    def __init__(self, country_tag, *effects):
+class CountryS(Scope):
+    def __init__(self, country_tag: Country, *effects: CountryEffect):
         super().__init__("c", country_tag, effects)
 
     def type(self):
         return "country"
 
 
-class MarketGoodScope(Scope):
+class MarketGoodS(Scope):
     def __init__(self, good, *effects):
         super().__init__("mg", good, effects)
 
@@ -51,23 +61,48 @@ class MarketGoodScope(Scope):
         return "market_goods"
 
 
-class StateScope(Scope):
-    def __init__(self, state_tag, *effects):
+class StateEffect:
+    @staticmethod
+    def activate_building(building: Building):
+        """
+
+        Activate a building in a state
+        activate_building = { building = building_key }
+        **Supported Scopes**: state
+        """
+        return default(inspect.stack()[0][3], br(eq("building", building.name)))
+
+
+class StateS(Scope):
+    def __init__(self, state_tag, *effects: StateEffect):
         super().__init__("s", state_tag, effects)
 
     def type(self):
         return "state"
 
 
-class CultureScope(Scope):
-    def __init__(self, culture, *effects):
+class CultureEffect:
+    @staticmethod
+    def add_cultural_obsession(arg):
+        """
+
+        Adds a new obsession to the culture in scope
+        add_cultural_obsession = X
+        Where X is a goods
+        **Supported Scopes**: culture
+        """
+        return default("add_cultural_obsession", arg)
+
+
+class CultureS(Scope):
+    def __init__(self, culture: Culture, *effects: CultureEffect):
         super().__init__("cu", culture, effects)
 
     def type(self):
         return "culture"
 
 
-class RegionScope(Scope):
+class RegionS(Scope):
     def __init__(self, state_region, *effects):
         super().__init__("sr", state_region, effects)
 
@@ -75,8 +110,19 @@ class RegionScope(Scope):
         return "state_region"
 
 
-class IGScope(Scope):
-    def __init__(self, ig, *effects):
+class IGEffect:
+    @staticmethod
+    def abandon_revolution():
+        """
+        Removes interest group from revolution
+        abandon_revolution = yes
+        **Supported Scopes**: interest_group
+        """
+        return default("abandon_revolution", "yes")
+
+
+class IGS(Scope):
+    def __init__(self, ig: Interest_group, *effects: IGEffect):
         super().__init__("ig", ig, effects)
 
     def type(self):
@@ -86,35 +132,6 @@ class IGScope(Scope):
 global current_scope
 
 # TODO: most effects are unfinished
-
-
-def abandon_revolution(arg="yes"):
-    """
-    Removes interest group from revolution
-    abandon_revolution = yes/no
-    **Supported Scopes**: interest_group
-    """
-    return default("abandon_revolution", arg)
-
-
-def activate_building(building):
-    """
-
-    Activate a building in a state
-    activate_building = { building = building_key }
-    **Supported Scopes**: state
-    """
-    return default(inspect.stack()[0][3], br(eq("building", building)))
-
-
-def activate_law(law):
-    """
-
-    Activates a law for a country
-    **Supported Scopes**: country
-    **Supported Targets**: law_type
-    """
-    return default("activate_law", law)
 
 
 def activate_production_method(arg):
@@ -230,16 +247,6 @@ def add_culture_standard_of_living_modifier(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def add_declared_interest(arg):
-    """
-
-    Will create a declared interest in the target strategic region
-    c:FRA = { add_declared_interest = region_nile_basin }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
 def add_devastation(arg):
     """
 
@@ -259,41 +266,13 @@ def add_diplomatic_play_war_support(target, value):
     return default(inspect.stack()[0][3], br(eq("target", target) + eq("value", value)))
 
 
-def add_enactment_modifier(arg):
-    """
-
-    Adds an enactment-related timed modifier effect to object in scope
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
-def add_enactment_phase(arg):
-    """
-
-    Changes the current law enactment phase in scope country by an added amount. The result will be clamped between 0 and NPolitics::LAW_ENACTMENT_MAX_PHASES. The enacting law will pass if the resulting value equals NPolitics::LAW_ENACTMENT_MAX_PHASES.
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
-def add_enactment_setback(arg):
-    """
-
-    Changes the current law enactment setback count in scope country by an added amount. The result will be clamped between 0 and NPolitics::LAW_ENACTMENT_MAX_SETBACKS. The law enactment will fail if the resulting value equals NPolitics::LAW_ENACTMENT_MAX_SETBACKS.
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
-def add_era_researched(arg):
-    """
 
-    Add specified era as researched in a country scope
-    add_era_researched = era
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def add_escalation(arg):
@@ -360,14 +339,6 @@ def add_initiator_backers(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def add_investment_pool(arg):
-    """
-
-    Directly adds money to the investment pool
-    add_investment_pool = 50
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def add_journal_entry(type, target):
@@ -379,39 +350,6 @@ def add_journal_entry(type, target):
     """
     return default(inspect.stack()[0][3], br(eq("type", type) + eq("target", target)))
 
-
-def add_law_progress(arg):
-    """
-
-    Adds x% progress to the current checkpoint of the law being passed (range is [0, 1], 0.1 means 10 percentage points)
-    add_law_progress = 0.1 / -0.1
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def add_loyalists(value, ig, pop_type, strata, culture, religion):
-    """
-
-    Adds loyalists to pops in scope country, all parameters except value are optional,
-    if interest_group is specified pops gain loyalists based on their ig membership,
-    pop type and strata cannot be used at the same time
-    add_radicals = {
-        value = x
-        interest_group = <scope/ig:key>
-        pop_type = <scope/pop_type:key>
-        strata = <key>
-        culture = <scope/cu:key>
-        religion = <scope/rel:key>
-    }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], br(eqn("value", value) +
-                                             eqn("interest_group", ig) +
-                                             eqn("pop_type", pop_type) +
-                                             eqn("strata", strata) +
-                                             eqn("culture", culture) +
-                                             eq("religion", religion)))
 
 
 def add_loyalists_in_state(value, ig, pop_type, strata, culture, religion):
@@ -498,41 +436,6 @@ def add_pop_wealth(wealth_distribution, update_loyalties):
                                              eq("update_loyalties", update_loyalties)))
 
 
-def add_primary_culture(arg):
-    """
-
-    Adds a culture to the primary cultures of a country
-    add_primary_culture = X
-    Where X is a culture scope
-    **Supported Scopes**: country
-    **Supported Targets**: culture
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def add_radicals(value, ig, pop_type, strata, culture, religion):
-    """
-
-    Adds radicals to pops in scope country, all parameters except value are optional,
-    if interest_group is specified pops gain radicals based on their ig membership,
-    pop type and strata cannot be used at the same time
-    add_radicals = {
-        value = x
-        interest_group = <scope/ig:key>
-        pop_type = <scope/pop_type:key>
-        strata = <key>
-        culture = <scope/cu:key>
-        religion = <scope/rel:key>
-    }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], br(eqn("value", value) +
-                                             eqn("interest_group", ig) +
-                                             eqn("pop_type", pop_type) +
-                                             eqn("strata", strata) +
-                                             eqn("culture", culture) +
-                                             eq("religion", religion)))
-
 
 def add_radicals_in_state(value, ig, pop_type, strata, culture, religion):
     """
@@ -607,36 +510,6 @@ def add_target_backers(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def add_taxed_goods(arg):
-    """
-
-    Adds consumption taxes on a good to a country
-    add_taxed_goods = <goods key/scope>
-    **Supported Scopes**: country
-    **Supported Targets**: goods
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def add_technology_progress(arg):
-    """
-
-    Add technology progress
-    add_technology_progress = { progress = X technology = Y }
-    Where X is a fixed point and Y is an technology
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def add_technology_researched(arg):
-    """
-
-    Research the specified technology in a country scope
-    add_technology_researched = technology
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def add_to_global_variable_list(arg):
@@ -705,14 +578,6 @@ def add_trait(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def add_treasury(arg):
-    """
-
-    Add/remove money from a country
-    add_treasury = fixed point
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def add_war_exhaustion(arg):
@@ -745,37 +610,6 @@ def add_war_war_support(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def annex(arg):
-    """
-
-    Annexes a country
-    annex = scope
-    **Supported Scopes**: country
-    **Supported Targets**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def annex_as_civil_war(arg):
-    """
-
-    Annexes a country with all the inheritance effects of a victorious side in a civil war
-    annex_as_civil_war = scope
-    **Supported Scopes**: country
-    **Supported Targets**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def annex_with_incorporation(arg):
-    """
-
-    Annexes a country, inheriting incorporation of their states
-    annex_with_incorporation = scope
-    **Supported Scopes**: country
-    **Supported Targets**: country
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def assert_if(arg):
@@ -798,26 +632,6 @@ def assert_read(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def call_election(months: int):
-    """
-
-    Sets the next election date for country in N months
-    call_election = {
-        months = 6
-    }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], br(eq("months", str(months))))
-
-
-def cancel_enactment(arg):
-    """
-
-    Stops enacting the country's currently enacting law
-    cancel_enactment = yes
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def change_character_culture(arg):
@@ -854,29 +668,6 @@ def change_global_variable(arg):
     """
     return default(inspect.stack()[0][3], arg)
 
-
-def change_infamy(arg):
-    """
-
-    Change infamy of scope country
-    change_infamy = amount
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def change_institution_investment_level(institution, investment):
-    """
-
-    Add/remove the investment level for the institution
-    change_institution_investment_level = {
-        institution = institution_police
-        investment = -1
-    }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], br(eqn("institution", institution) +
-                                             eq("investment", investment)))
 
 
 def change_local_variable(arg):
@@ -922,50 +713,6 @@ def change_poptype(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def change_relations(target, value):
-    """
-
-    Change relations between two countries
-    change_relations = {
-        tcountry = country scope/tag
-        value = amount
-    }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], br(eq("tcountry", target) + eq("value", value)))
-
-
-def change_subject_type(arg):
-    """
-
-    Will change the subject type of the country that is the current scope.
-    change_subject_type = subject_type_dominion
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def change_tag(arg):
-    """
-
-    Change the tag for the scoped country
-    c:GBR = { change_tag = FRA }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def change_tension(target, value):
-    """
-
-    Change tension between two countries
-    change_tension = {
-        tcountry = country scope/tag
-        value = amount
-    }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], br(eq("tcountry", target) + eq("value", value)))
 
 
 def change_variable(arg):
@@ -1017,22 +764,6 @@ def clamp_variable(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def clear_debt(arg):
-    """
-
-    Clear country loans = bool
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def clear_enactment_modifier(arg):
-    """
-
-    Clears the current law enactment modifier of scope country.
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def clear_global_variable_list(arg):
@@ -1065,15 +796,6 @@ def clear_saved_scope(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def clear_scaled_debt(arg):
-    """
-
-    Clears an amount of debt equal to the defined multiplier on target's max credit(arg):
-
-    clear_scaled_debt = value
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def clear_variable_list(arg):
@@ -1086,15 +808,6 @@ def clear_variable_list(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def complete_objective_subgoal(arg):
-    """
-
-    Completes an objective subgoal
-    complete_objective_subgoal = <key>
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
 
 def convert_population(target, value):
     """
@@ -1104,18 +817,6 @@ def convert_population(target, value):
     **Supported Scopes**: state
     """
     return default(inspect.stack()[0][3], br(eq("target", target) + eq("value", value)))
-
-
-def copy_laws(arg):
-    """
-
-    Copies the constitution of the target country scope
-    Warning: This stops any current enactment.
-    copy_laws = scope
-    **Supported Scopes**: country
-    **Supported Targets**: country
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 # TODO: creates
@@ -1204,61 +905,8 @@ def create_country(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def create_diplomatic_pact(country, first_state, second_state, type):
-    """
-
-    Create a diplomatic pact between two countries, with scope country as initiator
-    create_diplomatic_pact = {
-        country = country scope/tag
-        first_state = state scope/tag
-        second_state = state scope/tag
-        type = diplomatic action type
-    }
-    **Supported Scopes**: country
-    """
-    return default_list(inspect.stack()[0][3], [eq("country", country),
-                                                eq("first_state", first_state),
-                                                eq("second_state", second_state),
-                                                eq("type", type)])
 
 
-def create_diplomatic_play(name,
-                           escalation,
-                           initiator,
-                           type,
-                           war: bool = False,
-                           civil_war: bool = False,
-                           initiator_backers: List[str] = [],
-                           target_backers: List[str] = [],
-                           wargoal = "USE THE FUNCTION"): # TODO find a better solution
-    """
-
-    Create a diplomatic play with the scoped object as target
-    create_diplomatic_play = {
-        name = loc_key
-        escalation = integer between 0 and 100
-        war = bool
-        initiator = country scope/tag
-        type = diplomatic play type
-        handle_annexation_as_civil_war = yes/no
-        add_initiator_backers = { list of country scopes/tags }
-        add_target_backers = { list of country scopes/tags }
-        add_war_goal = { holder = country scope/tag, type = x, state = <state target>, country = <country target,> region = <region target>  }
-    }
-    **Supported Scopes**: country
-    """
-    return default_list(inspect.stack()[0][3],
-                        [
-                            eq("name", name),
-                            eq("escalation", escalation),
-                            eq("war", str(war).lower()),
-                            eq("initiator", initiator),
-                            eq("type", type),
-                            eq("handle_annexation_as_civil_war", str(civil_war).lower()),
-                            default_list("add_initiator_backers", initiator_backers),
-                            default_list("add_target_backers", target_backers),
-                            wargoal
-                        ])
 
 
 def create_dynamic_country(arg):
@@ -1284,21 +932,6 @@ def create_dynamic_country(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def create_incident(target, value):
-    """
-
-    Creates a diplomatic incident that generates infamy, with target country as the victim
-    create_incident = {
-        tcountry = country scope/tag
-        value = infamy amount
-    }
-    **Supported Scopes**: country
-    """
-    return default_list(inspect.stack()[0][3],
-                        [
-                            eq("tcountry", target),
-                            eq("value", value)
-                        ])
 
 
 def create_mass_migration(origin, culture):
@@ -1318,35 +951,7 @@ def create_mass_migration(origin, culture):
                         ])
 
 
-def create_military_formation(arg):
-    """
 
-    Creates a military formation
-    create_military_formation = {
-        # Optional name
-        name = "name"
-        # type defaults to army(arg):
-
-        type = army/fleet
-        hq_region = sr:region_russia
-        # Add as many combat_unit specifications as necessary
-        combat_unit = {
-            type = unit_type:combat_unit_type_irregular_infantry
-            # service_type defaults to regular and conscript is not applicable for fleets(arg):
-
-            service_type = regular/conscript
-            state_region = s:STATE_MOSCOW
-            count = 5
-        }
-        # mobilization_options are not applicable for fleets
-        mobilization_options = {
-            mobilization_option:mobilization_option_basic_supplies
-            mobilization_option:mobilization_option_truck_transport
-        }
-    }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def create_pop(arg):
@@ -1366,38 +971,6 @@ def create_state(arg):
     """
     return default("create_state", arg)
 
-
-def create_trade_route(arg): # TODO: split into: create import/export
-    """
-
-    Creates a new Trade Route
-    trade_route = {
-        goods = x
-        level = x
-        import = yes/no
-        origin = state_region
-        target = state_region
-    }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def create_truce(target, months):
-    """
-
-    Create a truce betweeen two countries
-    create_truce = {
-        tcountry = country scope/tag
-        months = integer
-    }
-    **Supported Scopes**: country
-    """
-    return default_list(inspect.stack()[0][3],
-                        [
-                            eq("tcountry", target),
-                            eq("months", months)
-                        ])
 
 
 def custom_description(arg):
@@ -1464,23 +1037,6 @@ def deactivate_building(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def deactivate_law(arg):
-    """
-    Deactivates a law for a country
-    **Supported Scopes**: country
-    **Supported Targets**: law_type
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def deactivate_parties(arg):
-    """
-
-    Deactivates parties in scoped country.
-    deactivate_parties = yes
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def debug_log(arg):
@@ -1566,29 +1122,6 @@ def end_play(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def end_truce(arg):
-    """
-
-    Ends a truce betweeen two countries
-    end_truce = {
-        tcountry = country scope/tag
-        months = integer
-    }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def every_active_party(triggers, effects):
-    """
-
-    Iterate through all active political parties in a country
-    every_active_party = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: party
-    """
-    return default(inspect.stack()[0][3], iterator(triggers, effects))
-
 
 def every_character(triggers, effects):
     """
@@ -1623,38 +1156,6 @@ def every_character_in_void(triggers, effects):
     return default(inspect.stack()[0][3], iterator(triggers, effects))
 
 
-def every_civil_war(triggers, effects):
-    """
-
-    Iterate through all civil wars related to the scoped country
-    every_civil_war = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: civil_war
-    """
-    return default(inspect.stack()[0][3], iterator(triggers, effects))
-
-
-def every_cobelligerent_in_diplo_play(triggers, effects):
-    """
-
-    Iterate through all co-belligerents of scope country in all diplomatic plays (includes wars)
-    every_cobelligerent_in_diplo_play = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: country
-    """
-    return default(inspect.stack()[0][3], iterator(triggers, effects))
-
-
-def every_cobelligerent_in_war(triggers, effects):
-    """
-
-    Iterate through all co-belligerents of scope country in all wars
-    every_cobelligerent_in_war = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: country
-    """
-    return default(inspect.stack()[0][3], iterator(triggers, effects))
-
 
 def every_combat_unit(triggers, effects):
     """
@@ -1667,16 +1168,6 @@ def every_combat_unit(triggers, effects):
     """
     return default(inspect.stack()[0][3], iterator(triggers, effects))
 
-
-def every_company(triggers, effects):
-    """
-
-    Iterate through all companies in a country
-    every_company = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: company
-    """
-    return default(inspect.stack()[0][3], iterator(triggers, effects))
 
 
 def every_country(triggers, effects):
@@ -1701,27 +1192,6 @@ def every_diplomatic_play(triggers, effects):
     return default(inspect.stack()[0][3], iterator(triggers, effects))
 
 
-def every_enemy_in_diplo_play(triggers, effects):
-    """
-
-    Iterate through all enemies of scope country in all diplomatic plays (includes wars)
-    every_enemy_in_diplo_play = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: country
-    """
-    return default(inspect.stack()[0][3], iterator(triggers, effects))
-
-
-def every_enemy_in_war(triggers, effects):
-    """
-
-    Iterate through all enemies of scope country in all wars
-    every_enemy_in_war = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: country
-    """
-    return default(inspect.stack()[0][3], iterator(triggers, effects))
-
 
 def every_in_global_list(triggers, effects):
     """
@@ -1732,16 +1202,6 @@ def every_in_global_list(triggers, effects):
     """
     return default(inspect.stack()[0][3], iterator(triggers, effects))
 
-
-def every_in_hierarchy(triggers, effects):
-    """
-
-    Any country in current hierarchy, including current
-    every_in_hierarchy = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: country
-    """
-    return default(inspect.stack()[0][3], iterator(triggers, effects))
 
 
 def every_in_list(triggers, effects):
@@ -1763,27 +1223,6 @@ def every_in_local_list(triggers, effects):
     """
     return default(inspect.stack()[0][3], iterator(triggers, effects))
 
-
-def every_interest_group(triggers, effects):
-    """
-
-    Iterate through all interest groups in a country
-    every_interest_group = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: interest_group
-    """
-    return default(inspect.stack()[0][3], iterator(triggers, effects))
-
-
-def every_law(triggers, effects):
-    """
-
-    Iterate through all laws in a country
-    every_law = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: law
-    """
-    return default(inspect.stack()[0][3], iterator(triggers, effects))
 
 
 def every_market(triggers, effects):
@@ -1842,16 +1281,6 @@ def every_neighbouring_state(triggers, effects):
     return default(inspect.stack()[0][3], iterator(triggers, effects))
 
 
-def every_overlord_or_above(triggers, effects):
-    """
-
-    Any country above current in hierarchy
-    every_overlord_or_above = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: country
-    """
-    return default(inspect.stack()[0][3], iterator(triggers, effects))
-
 
 def every_participant(triggers, effects):
     """
@@ -1863,27 +1292,6 @@ def every_participant(triggers, effects):
     """
     return default(inspect.stack()[0][3], iterator(triggers, effects))
 
-
-def every_political_movement(triggers, effects):
-    """
-
-    Iterate through all political movements in a country
-    every_political_movement = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: political_movement
-    """
-    return default(inspect.stack()[0][3], iterator(triggers, effects))
-
-
-def every_potential_party(triggers, effects):
-    """
-
-    Iterate through all potential political parties in a country
-    every_potential_party = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: party
-    """
-    return default(inspect.stack()[0][3], iterator(triggers, effects))
 
 
 def every_preferred_law(triggers, effects):
@@ -1920,16 +1328,6 @@ def every_province(triggers, effects):
     """
     return default(inspect.stack()[0][3], iterator(triggers, effects))
 
-
-def every_rival_country(triggers, effects):
-    """
-
-    Any country that is rival to the country in a scope
-    every_rival_country = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: country
-    """
-    return default("every_rival_country", iterator(triggers, effects))
 
 
 def every_scope_admiral(triggers, effects):
@@ -1998,17 +1396,6 @@ def every_scope_culture(triggers, effects):
     return default("every_scope_culture", iterator(triggers, effects))
 
 
-def every_scope_diplomatic_pact(triggers, effects):
-    """
-
-    Any diplomatic pact of the country in a scope
-    every_scope_diplomatic_pact = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: diplomatic_pact
-    """
-    return default("every_scope_diplomatic_pact", iterator(triggers, effects))
-
-
 def every_scope_front(triggers, effects):
     """
 
@@ -2029,17 +1416,6 @@ def every_scope_general(triggers, effects):
     **Supported Targets**: character
     """
     return default("every_scope_general", iterator(triggers, effects))
-
-
-def every_scope_held_interest_marker(triggers, effects):
-    """
-
-    Iterate through all interest markers held by a country
-    every_scope_held_interest_marker = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: interest_marker
-    """
-    return default("every_scope_held_interest_marker", iterator(triggers, effects))
 
 
 def every_scope_initiator_ally(triggers, effects):
@@ -2119,49 +1495,6 @@ def every_scope_target_ally(triggers, effects):
     return default("every_scope_target_ally", iterator(triggers, effects))
 
 
-def every_scope_theater(triggers, effects):
-    """
-
-    Iterate through all theaters in a: country
-    every_scope_theater = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: theater
-    """
-    return default("every_scope_theater", iterator(triggers, effects))
-
-
-def every_scope_violate_sovereignty_interested_parties(triggers, effects):
-    """
-
-    Iterate through all countries that would be interested if country in scope has their sovereignty violated
-    every_scope_violate_sovereignty_interested_parties = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: country
-    """
-    return default("every_scope_violate_sovereignty_interested_parties", iterator(triggers, effects))
-
-
-def every_scope_violate_sovereignty_wars(triggers, effects):
-    """
-
-    Iterate through all relevant wars if target country had their sovereignty violated by scoped country
-    every_scope_violate_sovereignty_wars = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: war
-    """
-    return default("every_scope_violate_sovereignty_wars", iterator(triggers, effects))
-
-
-def every_scope_war(triggers, effects):
-    """
-
-    Iterate through all wars related to the scope
-    every_scope_war = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: war
-    """
-    return default("every_scope_war", iterator(triggers, effects))
-
 
 def every_sea_node_adjacent_state(triggers, effects):
     """
@@ -2196,28 +1529,6 @@ def every_state_region(triggers, effects):
     return default("every_state_region", iterator(triggers, effects))
 
 
-def every_strategic_objective(triggers, effects):
-    """
-
-    Iterate through all Strategic Objective states from the scoped Country
-    every_strategic_objective = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: state
-    """
-    return default("every_strategic_objective", iterator(triggers, effects))
-
-
-def every_subject_or_below(triggers, effects):
-    """
-
-    Any country below current in hierarchy
-    every_subject_or_below = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: country
-    """
-    return default("every_subject_or_below", iterator(triggers, effects))
-
-
 def every_supporting_character(triggers, effects):
     """
 
@@ -2249,17 +1560,6 @@ def every_trade_route(triggers, effects):
     **Supported Targets**: trade_route
     """
     return default("every_trade_route", iterator(triggers, effects))
-
-
-def every_valid_mass_migration_culture(triggers, effects):
-    """
-
-    Lists for cultures in the scoped country that are valid for mass migration
-    every_valid_mass_migration_culture = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: culture
-    """
-    return default("every_valid_mass_migration_culture", iterator(triggers, effects))
 
 
 def exile_character(arg):
@@ -2359,24 +1659,6 @@ def kill_character(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def kill_population(arg):
-    """
-
-    Kills a number of individuals in the population in the scoped country.
-
-    All parameters except percent are optional. Pop type and strata cannot be used at the same time.
-    kill_population = {
-        value = <integer value>
-        culture = <scope/cu:key>
-        religion = <scope/rel:key>
-        interest_group = <scope/ig:key>
-        pop_type = <scope/pop_type:key>
-        strata = <key>
-    }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
 
 def kill_population_in_state(arg):
     """
@@ -2396,24 +1678,6 @@ def kill_population_in_state(arg):
     """
     return default(inspect.stack()[0][3], arg)
 
-
-def kill_population_percent(arg):
-    """
-
-    Kills a percentage of the population in the scoped country.
-
-    All parameters except percent are optional. Pop type and strata cannot be used at the same time.
-    kill_population_percent = {
-        percent = <decimal value>
-        culture = <scope/cu:key>
-        religion = <scope/rel:key>
-        interest_group = <scope/ig:key>
-        pop_type = <scope/pop_type:key>
-        strata = <key>
-    }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def kill_population_percent_in_state(arg):
@@ -2447,15 +1711,6 @@ def lock_trade_route(years):
     return default(inspect.stack()[0][3], br(eq("years", years)))
 
 
-def make_independent(arg):
-    """
-
-    Makes a country independent.
-    make_independent = bool
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
 
 def mobilize_army(arg):
     """
@@ -2484,6 +1739,7 @@ def move_pop(arg):
     return default(inspect.stack()[0][3], arg)
 
 # TODO all ordered iterators
+# TODO proper country ends here
 
 def ordered_active_party(arg):
     """
@@ -3612,16 +2868,6 @@ def place_character_in_void(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def play_as(arg):
-    """
-
-    Change which country scoped country's player will play as
-    play_as = <scope>
-    **Supported Scopes**: country
-    **Supported Targets**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
 
 def post_notification(arg):
     """
@@ -3653,17 +2899,6 @@ def random(arg):
     **Supported Scopes**: none/all
     """
     return default(inspect.stack()[0][3], arg)
-
-
-def random_active_party(triggers, effects, mtth=""):
-    """
-
-    Iterate through all active political parties in a country
-    random_active_party = { limit = { <triggers> } (optional) weight = { mtth } <effects> }
-    **Supported Scopes**: country
-    **Supported Targets**: party
-    """
-    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
 def random_character(triggers, effects, mtth=""):
@@ -4371,15 +3606,6 @@ def recalculate_pop_ig_support(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def remove_active_objective_subgoal(arg):
-    """
-
-    Removes an active objective subgoal
-    remove_active_objective_subgoal = <key>
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
 
 def remove_as_interest_group_leader(arg):
     """
@@ -4390,16 +3616,6 @@ def remove_as_interest_group_leader(arg):
     """
     return default(inspect.stack()[0][3], arg)
 
-
-def remove_banned_goods(arg):
-    """
-
-    Removes a total ban of a good from a country
-    remove_banned_goods = <goods key/scope>
-    **Supported Scopes**: country
-    **Supported Targets**: goods
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def remove_building(arg):
@@ -4433,15 +3649,6 @@ def remove_claim(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def remove_company(arg):
-    """
-
-    Removes company type from a country's companies
-    remove_company = company_type:key
-    **Supported Scopes**: country
-    **Supported Targets**: company_type
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def remove_cultural_obsession(arg):
@@ -4454,27 +3661,6 @@ def remove_cultural_obsession(arg):
     """
     return default(inspect.stack()[0][3], arg)
 
-
-def remove_diplomatic_pact(arg):
-    """
-
-    Removes a diplomatic pact between two countries, with scope country as initiator
-    remove_diplomatic_pact = {
-        country = country scope/tag
-        type = diplomatic action type
-    }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def remove_enactment_modifier(arg):
-    """
-
-    Removes an enactment-related timed modifier effect to object in scope
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def remove_from_list(arg):
@@ -4595,17 +3781,6 @@ def remove_modifier(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def remove_primary_culture(arg):
-    """
-
-    Removes a culture from the primary cultures of a country
-    remove_primary_culture = X
-    Where X is a culture scope
-    **Supported Scopes**: country
-    **Supported Targets**: culture
-    """
-    return default(inspect.stack()[0][3], arg)
-
 
 def remove_ruling_interest_group(arg):
     """
@@ -4636,16 +3811,6 @@ def remove_target_backers(arg):
     """
     return default(inspect.stack()[0][3], arg)
 
-
-def remove_taxed_goods(arg):
-    """
-
-    Removes consumption taxes on a good from a country
-    remove_taxed_goods = <goods key/scope>
-    **Supported Scopes**: country
-    **Supported Targets**: goods
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def remove_trait(arg):
@@ -4797,16 +3962,6 @@ def set_available_for_autonomous_investment(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def set_capital(arg):
-    """
-
-    Set capital state in a country scope
-    set_capital = X
-    Where X is a state region
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
 
 def set_character_as_ruler(arg):
     """
@@ -4858,14 +4013,6 @@ def set_company_establishment_date(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def set_country_type(arg):
-    """
-
-    Sets the type of country for a country, for history
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
 
 def set_devastation(arg):
     """
@@ -4875,15 +4022,6 @@ def set_devastation(arg):
     """
     return default(inspect.stack()[0][3], arg)
 
-
-def set_diplomats_expelled(arg):
-    """
-
-    Set diplomats expelled = bool
-    **Supported Scopes**: country
-    **Supported Targets**: country
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def set_global_variable(arg):
@@ -4900,16 +4038,6 @@ def set_global_variable(arg):
     """
     return default(inspect.stack()[0][3], br(arg))
 
-
-def set_government_wage_level(level: Level):
-    """
-
-    Sets the government wage level of scoped country
-    set_government_wage_level = very_low/low/medium/high/very_high
-    **Supported Scopes**: country
-    """
-    assert isinstance(level, Level)
-    return default(inspect.stack()[0][3], level.name)
 
 
 def set_home_country(arg):
@@ -4978,24 +4106,6 @@ def set_ig_trait(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def set_immune_to_revolutions(arg):
-    """
-
-    Makes a country immune to revolutions or removes such immunity.
-    set_immune_to_revolutions = yes/no
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def set_institution_investment_level(institution, level):
-    """
-
-    Sets the investment level for an institution
-    set_institution_investment_level = { institution = <key> level = x }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], br(eq("institution", institution) + eq("level", level)))
 
 
 def set_interest_group_name(arg):
@@ -5033,62 +4143,6 @@ def set_local_variable(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def set_market_capital(arg):
-    """
-
-    Set market capital in a country scope
-    set_market_capital = X
-    Where X is a state region
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def set_military_wage_level(level: Level):
-    """
-
-    Sets the military wage level of scoped country
-    set_military_wage_level = very_low/low/medium/high/very_high
-    **Supported Scopes**: country
-    """
-    assert isinstance(level, Level)
-    return default(inspect.stack()[0][3], level.name)
-
-
-def set_mutual_secret_goal(target, goal):
-    """
-
-    Set mutual secret AI goal for scope country and target country
-    set_mutual_secret_goal = {
-        tcountry = country scope/tag
-        secret_goal = secret goal type
-    }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], br(eq("tcountry", target) + eq("secret_goal", goal)))
-
-
-def set_next_election_date(arg):
-    """
-
-    Set next election date for country
-    set_next_election_date = year.month.day
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def set_owes_obligation_to(country, setting):
-    """
-
-    Set whether a country owes another a obligation
-    set_owes_obligation = {
-        country = country scope/tag
-        setting = yes/no
-    }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], br(eq("country", country) + eq("setting", setting)))
 
 
 def set_owner_of_provinces(country, provinces):
@@ -5134,27 +4188,6 @@ def set_pop_wealth(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def set_relations(target, value):
-    """
-
-    Set relations between two countries
-    set_relations = {
-        tcountry = country scope/tag
-        value = amount
-    }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], br(eq("tcountry", target) + eq("value", value)))
-
-
-def set_ruling_interest_groups(arg):
-    """
-
-    Creates a government for the country in scope from a set of interest groups
-    set_ruling_interest_groups = { ig_tag1 ig_tag2 }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def set_ruling_party(arg):
@@ -5167,17 +4200,6 @@ def set_ruling_party(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def set_secret_goal(target, goal):
-    """
-
-    Set a secret AI goal for scope country towards another country
-    set_secret_goal = {
-        tcountry = country scope/tag
-        secret_goal = secret goal type
-    }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], br(eq("tcountry", target) + eq("secret_goal", goal)))
 
 
 def set_state_owner(arg):
@@ -5191,16 +4213,6 @@ def set_state_owner(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def set_state_religion(arg):
-    """
-
-    Changes the state religion of the country to the specified religion
-    set_state_religion = X
-    Where X is a religion scope
-    **Supported Scopes**: country
-    **Supported Targets**: religion
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def set_state_type(type: StateType):
@@ -5211,16 +4223,6 @@ def set_state_type(type: StateType):
     """
     assert isinstance(type, StateType)
     return default(inspect.stack()[0][3], type.name)
-
-
-def set_strategy(arg):
-    """
-
-    Set AI strategy for scope country
-    set_strategy = <key>
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def set_subsidized(arg):
@@ -5241,63 +4243,6 @@ def set_target_technology(arg):
     **Supported Scopes**: journalentry
     """
     return default(inspect.stack()[0][3], arg)
-
-
-def set_tariffs_export_priority(arg):
-    """
-
-    Sets Export Prioritized tariffs for a good in scoped country
-    set_tariffs_export_priority = <scope/key>
-    **Supported Scopes**: country
-    **Supported Targets**: goods
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def set_tariffs_import_priority(arg):
-    """
-
-    Sets Import Prioritized tariffs for a good in scoped country
-    set_tariffs_import_priority = <scope/key>
-    **Supported Scopes**: country
-    **Supported Targets**: goods
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def set_tariffs_no_priority(arg):
-    """
-
-    Sets tariffs to have no import/export priority for a good in scoped country
-    set_tariffs_no_priority = <scope/key>
-    **Supported Scopes**: country
-    **Supported Targets**: goods
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def set_tax_level(level: Level):
-    """
-
-    Sets the overall tax level of scoped country
-    set_tax_level = very_low/low/medium/high/very_high
-    **Supported Scopes**: country
-    """
-    assert isinstance(level, Level)
-    return default(inspect.stack()[0][3], level.name)
-
-
-def set_tension(target, value):
-    """
-
-    Set tension between two countries
-    set_tension = {
-        tcountry = country scope/tag
-        value = amount
-    }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], br(eq("tcountry", target) + eq("value", value)))
 
 
 def set_variable(arg):
@@ -5345,17 +4290,6 @@ def start_building_construction(arg): # TODO: buildings
     return default(inspect.stack()[0][3], arg)
 
 
-def start_enactment(arg): # TODO: law types
-    """
-
-    Starts enacting the specified law type for the country in scope
-    start_enactment = law_type:law_multicultural
-    **Supported Scopes**: country
-    **Supported Targets**: law_type
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
 def start_privately_funded_building_construction(arg):
     """
 
@@ -5365,15 +4299,6 @@ def start_privately_funded_building_construction(arg):
     """
     return default(inspect.stack()[0][3], arg)
 
-
-def start_research_random_technology(arg):
-    """
-
-    Scoped country starts research of any random technology they can
-    start_research_random_technology = yes
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def start_tutorial_lesson(arg):
@@ -5399,20 +4324,6 @@ def switch(arg): # TODO multiple args
     **Supported Scopes**: none/all
     """
     return default(inspect.stack()[0][3], arg)
-
-
-def take_on_scaled_debt(who, value):
-    """
-
-    Transfers an amount of debt equal to the defined multiplier on target's max credit(arg):
-
-    take_on_scaled_debt = {
-        who = <country>
-        value = decimal value
-    }
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], br(eq("who", who) + eq("value", value)))
 
 
 def teleport_to_front(arg):
@@ -5470,35 +4381,6 @@ def unset_available_for_autonomous_investment(arg):
     """
     return default(inspect.stack()[0][3], arg)
 
-
-def update_party_support(arg):
-    """
-
-    Updates party support in scoped country.
-    update_party_support = yes
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def validate_subsidies(arg):
-    """
-
-    Validates subsidies across a country's buildings.
-    validate_subsidies = bool
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def violate_sovereignty_join(arg):
-    """
-
-    Target joins scoped war
-    violate_sovereignty_accept = <country>
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def While(triggers, effects):

@@ -18,10 +18,14 @@ def add_if_defined(name: str, content):
 
 
 def br(content: str, layer=0) -> str:
+    if not content:
+        return ""
     return "{\n" + tab_contents(content) + "\n}"
 
 
 def eq(a: str, b: str) -> str:
+    if not b:
+        return a
     return a + " = " + b + " "
 
 
