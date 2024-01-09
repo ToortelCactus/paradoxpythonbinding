@@ -9,11 +9,14 @@ from effect.state import StateEffect
 from effect.region import RegionEffect
 from effect.pop import PopEffect
 from effect.ig import IGEffect
+from effect.party import PartyEffect
 from parsing.generated.country import Country
 from parsing.generated.interest_group import Interest_group
 from parsing.generated.religion import Religion
 from parsing.generated.building import Building
 from parsing.generated.culture import Culture
+from parsing.generated.party import Party
+from parsing.generated.state_region import State_region
 from parsing.generated.market_goods import Market_goods
 
 
@@ -85,7 +88,7 @@ class CultureS(Scope):
 
 
 class RegionS(Scope):
-    def __init__(self, state_region, *effects: RegionEffect):
+    def __init__(self, state_region: State_region, *effects: RegionEffect):
         super().__init__("sr", state_region, effects)
 
     def type(self):
@@ -106,6 +109,14 @@ class IGS(Scope):
 
     def type(self):
         return "interest_group"
+
+
+class PartyS(Scope):
+    def __init__(self, party: Party, *effects: PartyEffect):
+        super().__init__("py", party, effects)
+
+    def type(self):
+        return "party"
 
 
 global current_scope
@@ -207,15 +218,6 @@ def add_modifier(arg):
 
     Adds a timed modifier effect to object in scope
     **Supported Scopes**: country, building, character, institution, interest_group, journalentry, political_movement, state
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def add_momentum(arg):
-    """
-
-    Adds momentum to a Party during a campaign perioddd_momentum = value
-    **Supported Scopes**: party
     """
     return default(inspect.stack()[0][3], arg)
 
@@ -686,16 +688,6 @@ def deploy_to_front(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def disband_party(arg):
-    """
-
-    Removes all interest groups from the party, causing it to disband
-    disband_party = yes
-    **Supported Scopes**: party
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
 def disinherit_character(arg):
     """
 
@@ -853,17 +845,6 @@ def every_market_goods(triggers, effects):
     every_market_goods = { limit = { <triggers> } <effects> }
     **Supported Scopes**: market
     **Supported Targets**: market_goods
-    """
-    return default(inspect.stack()[0][3], iterator(triggers, effects))
-
-
-def every_member(triggers, effects):
-    """
-
-    Iterate through all interest group members of a party
-    every_member = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: party
-    **Supported Targets**: interest_group
     """
     return default(inspect.stack()[0][3], iterator(triggers, effects))
 
@@ -1624,23 +1605,6 @@ def ordered_market_goods(arg):
     """
     return default(inspect.stack()[0][3], arg)
 
-
-def ordered_member(arg):
-    """
-
-    Iterate through all interest group members of a party
-    ordered_member = {
-    limit = { <triggers> }
-    order_by = script_value
-    position = int
-    min = int
-    max = script_value
-    check_range_bounds = no # If you don't want an error logged if the list is smaller than the min/max
-    <effects> }
-    **Supported Scopes**: party
-    **Supported Targets**: interest_group
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def ordered_military_formation(arg):
@@ -2650,17 +2614,6 @@ def random_market_goods(triggers, effects, mtth=""):
     return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def random_member(triggers, effects, mtth=""):
-    """
-
-    Iterate through all interest group members of a party
-    random_member = { limit = { <triggers> } (optional) weight = { mtth } <effects> }
-    **Supported Scopes**: party
-    **Supported Targets**: interest_group
-    """
-    return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
-
-
 def random_military_formation(triggers, effects, mtth=""):
     """
 
@@ -3143,19 +3096,6 @@ def remove_global_variable(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def remove_ig_from_party(arg):
-    """
-
-    Removes target interest group from scope party
-    py:py_key = {
-        remove_ig_from_party = ig:ig_key
-    }
-    **Supported Scopes**: party
-    **Supported Targets**: interest_group
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
 def remove_initiator_backers(arg):
     """
 
@@ -3490,16 +3430,6 @@ def set_local_variable(arg):
     This variable will be accessible with <type_>var:X. With type being in a scope object or in a top scope
     Can also be used as set_variable = X (equivalent to set_variable = { name = X value = yes })
     **Supported Scopes**: none/all
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def set_ruling_party(arg):
-    """
-
-    Adds all interest groups in a party to government and removes all other interest groups from the government
-    set_ruling_party = yes
-    **Supported Scopes**: party
     """
     return default(inspect.stack()[0][3], arg)
 

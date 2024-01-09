@@ -99,16 +99,16 @@ class Modifier(Enum):
     retired_commander_interest_group_impact = 94
     forced_regime_change = 95
 
-    aroai__percent_accelerated_construction = 96
-    aroai__percent_accelerated_construction = 97
-    aroai__percent_accelerated_construction = 98
-    aroai__percent_accelerated_construction = 99
-    aroai__percent_accelerated_construction = 100
-    aroai__percent_accelerated_construction = 101
-    aroai__percent_accelerated_construction = 102
-    aroai__percent_accelerated_construction = 103
-    aroai__percent_accelerated_construction = 104
-    aroai__percent_accelerated_construction = 105
+    aroai_10_percent_accelerated_construction = 96
+    aroai_20_percent_accelerated_construction = 97
+    aroai_30_percent_accelerated_construction = 98
+    aroai_40_percent_accelerated_construction = 99
+    aroai_50_percent_accelerated_construction = 100
+    aroai_60_percent_accelerated_construction = 101
+    aroai_70_percent_accelerated_construction = 102
+    aroai_80_percent_accelerated_construction = 103
+    aroai_90_percent_accelerated_construction = 104
+    aroai_100_percent_accelerated_construction = 105
 
     excellent_solar_capacity = 106
     excellent_wind_capacity = 107
@@ -304,5 +304,5 @@ class Modifier(Enum):
     state_epidemic_c_modifier = 286
 
     declaration_of_human_rights = 287
-    unclos = 288
+    unclos1 = 288
 

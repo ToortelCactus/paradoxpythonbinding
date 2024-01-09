@@ -15,7 +15,7 @@ def default(arg1, arg2):
     return PopEffect(de(arg1, arg2))
 
 
-class PE:
+class PopE:
     @staticmethod
     def add_pop_wealth(wealth_distribution, update_loyalties):
         """

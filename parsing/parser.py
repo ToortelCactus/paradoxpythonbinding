@@ -16,6 +16,10 @@ def process_file(filename: str, output, counter, level=1):
             line = line.strip()
 
             if not line or line[0] == "#" or "{" not in line or leftbr != rightbr:
+                # comment is comment
+                if line and line[0] == "#":
+                    continue
+
                 leftbr += line.count("{")
                 rightbr += line.count("}")
                 continue
@@ -29,8 +33,8 @@ def process_file(filename: str, output, counter, level=1):
     return counter
 
 
-def valid_chars(char):
-    return char.isalpha() or char == "_"
+def valid_chars(char: str):
+    return char.isalnum() or char == "_"
 
 
 def parse_files(path: str, output_name: str, recursive=False):
@@ -95,6 +99,15 @@ def parse_goods():
     parse_files(path, "market_goods", True)
 
 
+def parse_state_regions():
+    path = MOD_PATH + "map_data/state_regions/"
+    parse_files(path, "state_region", True)
+
+
+def parse_parties():
+    path = MOD_PATH + "common/parties/"
+    parse_files(path, "party", True)
+
 
 def parse_all():
     parse_mts()
@@ -106,6 +119,8 @@ def parse_all():
     parse_law_groups()
     parse_cultures()
     parse_goods()
+    parse_state_regions()
+    parse_parties()
 
 
 # for testing
