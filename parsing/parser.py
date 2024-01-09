@@ -90,6 +90,12 @@ def parse_cultures():
     parse_files(path, "culture", True)
 
 
+def parse_goods():
+    path = MOD_PATH + "common/goods/"
+    parse_files(path, "market_goods", True)
+
+
+
 def parse_all():
     parse_mts()
     parse_modifiers()
@@ -99,6 +105,7 @@ def parse_all():
     parse_religions()
     parse_law_groups()
     parse_cultures()
+    parse_goods()
 
 
 # for testing

@@ -1,7 +1,7 @@
-from helpers import default as de, default_list, iterator, br, eq, eqn, random_iterator
-import inspect
-from enum import Enum
-from typing import List
+from common import *
+
+from effects import RegionS
+from effects import CountryS
 
 
 class Level(Enum):
@@ -47,7 +47,7 @@ class CE:
         return default("activate_production_method", arg)
 
     @staticmethod
-    def add_banned_goods(arg):
+    def add_banned_goods(good: Market_goods):
         """
 
         Adds a total ban of a good to a country
@@ -55,7 +55,7 @@ class CE:
         **Supported Scopes**: country
         **Supported Targets**: goods
         """
-        return default("add_banned_goods", arg)
+        return default("add_banned_goods", good)
 
     @staticmethod
     def add_change_relations_progress(target, value):
@@ -218,7 +218,7 @@ class CE:
                                                  eq("religion", religion)))
 
     @staticmethod
-    def add_taxed_goods(arg):
+    def add_taxed_goods(good: Market_goods):
         """
 
         Adds consumption taxes on a good to a country
@@ -226,7 +226,7 @@ class CE:
         **Supported Scopes**: country
         **Supported Targets**: goods
         """
-        return default(inspect.stack()[0][3], arg)
+        return default(inspect.stack()[0][3], good)
 
     @staticmethod
     def add_technology_progress(arg):
@@ -541,23 +541,53 @@ class CE:
         return default(inspect.stack()[0][3], arg)
 
     @staticmethod
-    def create_trade_route(arg):  # TODO: split into: create import/export
+    def create_import_route(goods: Market_goods, level: Level, origin: RegionS, target: RegionS):
         """
 
         Creates a new Trade Route
         trade_route = {
             goods = x
             level = x
-            import = yes/no
+            import = yes
             origin = state_region
             target = state_region
         }
         **Supported Scopes**: country
         """
-        return default(inspect.stack()[0][3], arg)
+        return default_list("trade_route",
+                            [
+                                eq("goods", goods.name),
+                                eq("level", level.name),
+                                eq("import", "yes"),
+                                eq("origin", str(origin)),
+                                eq("target", str(target))
+                            ])
 
     @staticmethod
-    def create_truce(target, months):
+    def create_export_route(goods: Market_goods, level: Level, origin: RegionS, target: RegionS):
+        """
+
+        Creates a new Trade Route
+        trade_route = {
+            goods = x
+            level = x
+            import = no
+            origin = state_region
+            target = state_region
+        }
+        **Supported Scopes**: country
+        """
+        return default_list("trade_route",
+                            [
+                                eq("goods", goods.name),
+                                eq("level", level.name),
+                                eq("import", "no"),
+                                eq("origin", str(origin)),
+                                eq("target", str(target))
+                            ])
+
+    @staticmethod
+    def create_truce(target: CountryS, months):
         """
 
         Create a truce betweeen two countries
@@ -569,7 +599,7 @@ class CE:
         """
         return default_list(inspect.stack()[0][3],
                             [
-                                eq("tcountry", target),
+                                eq("tcountry", str(target)),
                                 eq("months", months)
                             ])
 
@@ -1086,6 +1116,16 @@ class CE:
         return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
     @staticmethod
+    def recalculate_pop_ig_support(arg):
+        """
+
+        Recalculates and updates a country's pop IG memberships = bool
+        **Supported Scopes**: country
+        """
+        return default(inspect.stack()[0][3], arg)
+
+
+    @staticmethod
     def remove_active_objective_subgoal(arg):
         """
 
@@ -1096,7 +1136,7 @@ class CE:
         return default(inspect.stack()[0][3], arg)
 
     @staticmethod
-    def remove_banned_goods(arg):
+    def remove_banned_goods(good: Market_goods):
         """
 
         Removes a total ban of a good from a country
@@ -1104,7 +1144,7 @@ class CE:
         **Supported Scopes**: country
         **Supported Targets**: goods
         """
-        return default(inspect.stack()[0][3], arg)
+        return default(inspect.stack()[0][3], good)
 
     @staticmethod
     def remove_company(arg):
@@ -1161,7 +1201,7 @@ class CE:
         return default(inspect.stack()[0][3], arg)
 
     @staticmethod
-    def remove_taxed_goods(arg):
+    def remove_taxed_goods(good: Market_goods):
         """
 
         Removes consumption taxes on a good from a country
@@ -1169,7 +1209,7 @@ class CE:
         **Supported Scopes**: country
         **Supported Targets**: goods
         """
-        return default(inspect.stack()[0][3], arg)
+        return default(inspect.stack()[0][3], good)
 
     @staticmethod
     def set_capital(arg):
@@ -1349,7 +1389,7 @@ class CE:
         return default(inspect.stack()[0][3], arg)
 
     @staticmethod
-    def set_tariffs_export_priority(arg):
+    def set_tariffs_export_priority(good: Market_goods):
         """
 
         Sets Export Prioritized tariffs for a good in scoped country
@@ -1357,10 +1397,10 @@ class CE:
         **Supported Scopes**: country
         **Supported Targets**: goods
         """
-        return default(inspect.stack()[0][3], arg)
+        return default(inspect.stack()[0][3], good)
 
     @staticmethod
-    def set_tariffs_import_priority(arg):
+    def set_tariffs_import_priority(good: Market_goods):
         """
 
         Sets Import Prioritized tariffs for a good in scoped country
@@ -1368,10 +1408,10 @@ class CE:
         **Supported Scopes**: country
         **Supported Targets**: goods
         """
-        return default(inspect.stack()[0][3], arg)
+        return default(inspect.stack()[0][3], good)
 
     @staticmethod
-    def set_tariffs_no_priority(arg):
+    def set_tariffs_no_priority(good: Market_goods):
         """
 
         Sets tariffs to have no import/export priority for a good in scoped country
@@ -1379,7 +1419,7 @@ class CE:
         **Supported Scopes**: country
         **Supported Targets**: goods
         """
-        return default(inspect.stack()[0][3], arg)
+        return default(inspect.stack()[0][3], good)
 
     @staticmethod
     def set_tax_level(level: Level):

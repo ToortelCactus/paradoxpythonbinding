@@ -4,11 +4,17 @@ from enum import Enum
 from typing import List
 
 from effect.country import CountryEffect
+from effect.culture import CultureEffect
+from effect.state import StateEffect
+from effect.region import RegionEffect
+from effect.pop import PopEffect
+from effect.ig import IGEffect
 from parsing.generated.country import Country
 from parsing.generated.interest_group import Interest_group
 from parsing.generated.religion import Religion
 from parsing.generated.building import Building
 from parsing.generated.culture import Culture
+from parsing.generated.market_goods import Market_goods
 
 
 class Level(Enum):
@@ -27,6 +33,7 @@ class StateType(Enum):
 
 class Scope:
     """ Currently unfinished in terms of verification and exhaustiveness """
+
     def __init__(self, key, item, *effects):
         self.prev = "root"
         if isinstance(key, Enum):
@@ -54,23 +61,11 @@ class CountryS(Scope):
 
 
 class MarketGoodS(Scope):
-    def __init__(self, good, *effects):
+    def __init__(self, good: Market_goods, *effects):
         super().__init__("mg", good, effects)
 
     def type(self):
         return "market_goods"
-
-
-class StateEffect:
-    @staticmethod
-    def activate_building(building: Building):
-        """
-
-        Activate a building in a state
-        activate_building = { building = building_key }
-        **Supported Scopes**: state
-        """
-        return default(inspect.stack()[0][3], br(eq("building", building.name)))
 
 
 class StateS(Scope):
@@ -79,19 +74,6 @@ class StateS(Scope):
 
     def type(self):
         return "state"
-
-
-class CultureEffect:
-    @staticmethod
-    def add_cultural_obsession(arg):
-        """
-
-        Adds a new obsession to the culture in scope
-        add_cultural_obsession = X
-        Where X is a goods
-        **Supported Scopes**: culture
-        """
-        return default("add_cultural_obsession", arg)
 
 
 class CultureS(Scope):
@@ -103,22 +85,19 @@ class CultureS(Scope):
 
 
 class RegionS(Scope):
-    def __init__(self, state_region, *effects):
+    def __init__(self, state_region, *effects: RegionEffect):
         super().__init__("sr", state_region, effects)
 
     def type(self):
         return "state_region"
 
 
-class IGEffect:
-    @staticmethod
-    def abandon_revolution():
-        """
-        Removes interest group from revolution
-        abandon_revolution = yes
-        **Supported Scopes**: interest_group
-        """
-        return default("abandon_revolution", "yes")
+class PopS(Scope):
+    def __init__(self, pop, *effects: PopEffect):
+        super().__init__("pop", pop, effects)
+
+    def type(self):
+        return "pop"
 
 
 class IGS(Scope):
@@ -131,6 +110,7 @@ class IGS(Scope):
 
 global current_scope
 
+
 # TODO: most effects are unfinished
 
 
@@ -141,39 +121,6 @@ def activate_production_method(arg):
     **Supported Scopes**: country, state
     """
     return default("activate_production_method", arg)
-
-
-def add_arable_land(arg):
-    """
-
-    Add/remove arable land from a state region
-    **Supported Scopes**: state_region
-    """
-    return default("add_arable_land", arg)
-
-
-def add_banned_goods(arg):
-    """
-
-    Adds a total ban of a good to a country
-    add_banned_goods = <goods key/scope>
-    **Supported Scopes**: country
-    **Supported Targets**: goods
-    """
-    return default("add_banned_goods", arg)
-
-
-def add_change_relations_progress(target, value):
-    """
-
-    Add progress towards changing relations between two countries
-    add_change_relations_progress = {
-        tcountry = country scope/tag
-        value = amount
-    }
-    **Supported Scopes**: country
-    """
-    return default("add_change_relations_progress", br(eq("tcountry", target) + eq("value", value)))
 
 
 def add_character_role(arg):
@@ -196,17 +143,6 @@ def add_civil_war_progress(arg):
     return default("add_civil_war_progress", arg)
 
 
-def add_claim(country):
-    """
-
-    Adds scoped state region as a claim for target country
-    add_claim = scope/country
-    **Supported Scopes**: state_region
-    **Supported Targets**: country
-    """
-    return default("add_claim", country)
-
-
 def add_commander_rank(arg):
     """
 
@@ -214,46 +150,6 @@ def add_commander_rank(arg):
     **Supported Scopes**: character
     """
     return default("add_commander_rank", arg)
-
-
-def add_company(arg):
-    """
-
-    Adds company type to a country's companies
-    add_company = company_type:key
-    **Supported Scopes**: country
-    **Supported Targets**: company_type
-    """
-    return default("add_company", arg)
-
-
-def add_cultural_obsession(arg):
-    """
-
-    Adds a new obsession to the culture in scope
-    add_cultural_obsession = X
-    Where X is a goods
-    **Supported Scopes**: culture
-    """
-    return default("add_cultural_obsession", arg)
-
-
-def add_culture_standard_of_living_modifier(arg):
-    """
-
-    Apply a standard of living modifier in the scoped state for the given culture. Other than the required culture argument, this effect has the same syntax as add_modifier.
-    **Supported Scopes**: state
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def add_devastation(arg):
-    """
-
-    Add/remove devastation from a state region
-    **Supported Scopes**: state_region
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def add_diplomatic_play_war_support(target, value):
@@ -264,15 +160,6 @@ def add_diplomatic_play_war_support(target, value):
     **Supported Scopes**: diplomatic_play
     """
     return default(inspect.stack()[0][3], br(eq("target", target) + eq("value", value)))
-
-
-
-
-
-
-
-
-
 
 
 def add_escalation(arg):
@@ -295,40 +182,6 @@ def add_experience(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def add_homeland(arg):
-    """
-
-    Adds scoped state region as Homeland for target culture
-     add_homeland = cu:culture
-    **Supported Scopes**: state_region
-    **Supported Targets**: culture
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def add_ideology(arg):
-    """
-
-    Adds an ideology to scoped interest group
-    add_ideology = x
-    **Supported Scopes**: interest_group
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def add_ig_to_party(arg):
-    """
-
-    Adds target interest group to scope party
-    py:py_key = {
-        add_ig_to_party = ig:ig_key
-    }
-    **Supported Scopes**: party
-    **Supported Targets**: interest_group
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
 def add_initiator_backers(arg):
     """
 
@@ -339,8 +192,6 @@ def add_initiator_backers(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-
-
 def add_journal_entry(type, target):
     """
 
@@ -349,31 +200,6 @@ def add_journal_entry(type, target):
     **Supported Scopes**: none/all
     """
     return default(inspect.stack()[0][3], br(eq("type", type) + eq("target", target)))
-
-
-
-def add_loyalists_in_state(value, ig, pop_type, strata, culture, religion):
-    """
-
-    Adds loyalists to pops in scope state, all parameters except value are optional,
-    if interest_group is specified pops gain loyalists based on their ig membership,
-    pop type and strata cannot be used at the same time
-    add_radicals_in_state = {
-        value = x
-        interest_group = <scope/ig:key>
-        pop_type = <scope/pop_type:key>
-        strata = <key>
-        culture = <scope/cu:key>
-        religion = <scope/rel:key>
-    }
-    **Supported Scopes**: state
-    """
-    return default(inspect.stack()[0][3], br(eqn("value", value) +
-                                             eqn("interest_group", ig) +
-                                             eqn("pop_type", pop_type) +
-                                             eqn("strata", strata) +
-                                             eqn("culture", culture) +
-                                             eq("religion", religion)))
 
 
 def add_modifier(arg):
@@ -414,88 +240,12 @@ def add_organization(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def add_pollution(arg):
-    """
-
-    Increase/decrease pollution level in a scoped state region
-    add_pollution = 10
-    **Supported Scopes**: state_region
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def add_pop_wealth(wealth_distribution, update_loyalties):
-    """
-
-    Adds the wealth of the pop
-    add_pop_wealth = { wealth_distribution = {...} update_loyalties = true/false }
-    Where the distribution adding to wealth of the pop
-    **Supported Scopes**: pop
-    """
-    return default(inspect.stack()[0][3], br(eqn("wealth_distribution", wealth_distribution) +
-                                             eq("update_loyalties", update_loyalties)))
-
-
-
-def add_radicals_in_state(value, ig, pop_type, strata, culture, religion):
-    """
-
-    Adds radicals to pops in scope state, all parameters except value are optional,
-    if interest_group is specified pops gain radicals based on their ig membership,
-    pop type and strata cannot be used at the same time
-    add_radicals_in_state = {
-        value = x
-        interest_group = <scope/ig:key>
-        pop_type = <scope/pop_type:key>
-        strata = <key>
-        culture = <scope/cu:key>
-        religion = <scope/rel:key>
-    }
-    **Supported Scopes**: state
-    """
-    return default(inspect.stack()[0][3], br(eqn("value", value) +
-                                             eqn("interest_group", ig) +
-                                             eqn("pop_type", pop_type) +
-                                             eqn("strata", strata) +
-                                             eqn("culture", culture) +
-                                             eq("religion", religion)))
-
-
 def add_random_trait(arg):
     """
 
     Adds a random qualifying Trait of the specified category
     add_random_trait = personality / skill / condition
     **Supported Scopes**: character
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def add_religion_standard_of_living_modifier(arg):
-    """
-
-    Apply a standard of living modifier in the scoped state for the given religion. Other than the required religion argument, this effect has the same syntax as add_modifier.
-    **Supported Scopes**: state
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def add_ruling_interest_group(arg):
-    """
-
-    Adds interest group to government
-    add_ruling_interest_group = yes/no
-    **Supported Scopes**: interest_group
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def add_state_trait(arg):
-    """
-
-    add state trait in a scoped state region
-    add_state_trait = <state_trait_name>
-    **Supported Scopes**: state_region
     """
     return default(inspect.stack()[0][3], arg)
 
@@ -508,8 +258,6 @@ def add_target_backers(arg):
     **Supported Scopes**: diplomatic_play
     """
     return default(inspect.stack()[0][3], arg)
-
-
 
 
 def add_to_global_variable_list(arg):
@@ -578,8 +326,6 @@ def add_trait(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-
-
 def add_war_exhaustion(arg):
     """
 
@@ -610,8 +356,6 @@ def add_war_war_support(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-
-
 def assert_if(arg):
     """
 
@@ -630,8 +374,6 @@ def assert_read(arg):
     **Supported Scopes**: none/all
     """
     return default(inspect.stack()[0][3], arg)
-
-
 
 
 def change_character_culture(arg):
@@ -669,7 +411,6 @@ def change_global_variable(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-
 def change_local_variable(arg):
     """
 
@@ -681,38 +422,6 @@ def change_local_variable(arg):
     **Supported Scopes**: none/all
     """
     return default(inspect.stack()[0][3], arg)
-
-
-def change_pop_culture(target, value):
-    """
-
-    Changes the culture of the scoped pop to a specified culture by a specified percentage
-    change_pop_culture = { target = cu:spanish value = 0.33 }
-    **Supported Scopes**: pop
-    """
-    return default(inspect.stack()[0][3], br(eq("target", target) + eq("value", value)))
-
-
-def change_pop_religion(target, value):
-    """
-
-    Changes the religion of the scoped pop to a specified religion by a specified percentage
-    change_pop_religion = { target = rel:catholic value = 0.5 }
-    **Supported Scopes**: pop
-    """
-    return default(inspect.stack()[0][3], br(eq("target", target) + eq("value", value)))
-
-
-def change_poptype(arg):
-    """
-
-    Changes the type of the pop to the given type
-    **Supported Scopes**: pop
-    **Supported Targets**: pop_type
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
 
 
 def change_variable(arg):
@@ -764,8 +473,6 @@ def clamp_variable(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-
-
 def clear_global_variable_list(arg):
     """
 
@@ -796,8 +503,6 @@ def clear_saved_scope(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-
-
 def clear_variable_list(arg):
     """
 
@@ -808,39 +513,7 @@ def clear_variable_list(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-
-def convert_population(target, value):
-    """
-
-    Changes X% of the different religion population to the specified religion.
-    convert_population = { target = rel:catholic value = 0.5 }
-    **Supported Scopes**: state
-    """
-    return default(inspect.stack()[0][3], br(eq("target", target) + eq("value", value)))
-
-
 # TODO: creates
-
-def create_building(arg):
-    """
-
-    Creates a building in the scoped state. Supported values are:
-        building = <building>
-        activate_production_methods = { <production_methods> }
-        subsidized = yes/no
-        reserves = [0..1] (percentage of cash reserves the building should be created with)
-        level = arable_land/integer
-
-    If level is "arable_land", the building will be of the necessary level to exhaust all available arable land in the state.
-    If level is "urbanization", the building will be of the necessary level to exhaust all available urbanzation in the state.
-    If level is an integer, the building will be of that level
-
-    Please note: this effect works a little differently if there already is a building of the specified type in the state. If that happens:
-        1. the level will be the maximum between the scripted level and the level of the existing building
-        2. the cash reserves will be the maximum between the scripted value and the existing cash reserves
-    **Supported Scopes**: state
-    """
-    return default(inspect.stack()[0][3], arg)
 
 
 def create_character(name: str = "",
@@ -884,7 +557,7 @@ def create_character(name: str = "",
     }
     **Supported Scopes**: country
     """
-    return default(inspect.stack()[0][3], br(name)) # TODO heavily unfinished
+    return default(inspect.stack()[0][3], br(name))  # TODO heavily unfinished
 
 
 def create_country(arg):
@@ -903,10 +576,6 @@ def create_country(arg):
     **Supported Scopes**: none/all
     """
     return default(inspect.stack()[0][3], arg)
-
-
-
-
 
 
 def create_dynamic_country(arg):
@@ -930,47 +599,6 @@ def create_dynamic_country(arg):
     **Supported Scopes**: none/all
     """
     return default(inspect.stack()[0][3], arg)
-
-
-
-
-def create_mass_migration(origin, culture):
-    """
-
-    Initiates mass migration of a specific culture from a origin country to a scoped state
-    create_mass_migration = {
-        origin = c:GBR
-        culture = cu:english
-    }
-    **Supported Scopes**: state
-    """
-    return default_list(inspect.stack()[0][3],
-                        [
-                            eq("origin", origin),
-                            eq("culture", culture)
-                        ])
-
-
-
-
-
-def create_pop(arg):
-    """
-
-    Creates a pop in the scoped state
-    **Supported Scopes**: state
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def create_state(arg):
-    """
-
-    creates a state in a state region
-    **Supported Scopes**: state_region
-    """
-    return default("create_state", arg)
-
 
 
 def custom_description(arg):
@@ -1025,18 +653,6 @@ def custom_tooltip(arg):
     **Supported Scopes**: none/all
     """
     return default(inspect.stack()[0][3], arg)
-
-
-def deactivate_building(arg):
-    """
-
-    # Deactivate a building in a state
-    deactivate_building = { building = building_key }
-    **Supported Scopes**: state
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
 
 
 def debug_log(arg):
@@ -1122,7 +738,6 @@ def end_play(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-
 def every_character(triggers, effects):
     """
 
@@ -1156,7 +771,6 @@ def every_character_in_void(triggers, effects):
     return default(inspect.stack()[0][3], iterator(triggers, effects))
 
 
-
 def every_combat_unit(triggers, effects):
     """
 
@@ -1167,7 +781,6 @@ def every_combat_unit(triggers, effects):
     **Supported Targets**: new_combat_unit
     """
     return default(inspect.stack()[0][3], iterator(triggers, effects))
-
 
 
 def every_country(triggers, effects):
@@ -1192,7 +805,6 @@ def every_diplomatic_play(triggers, effects):
     return default(inspect.stack()[0][3], iterator(triggers, effects))
 
 
-
 def every_in_global_list(triggers, effects):
     """
 
@@ -1201,7 +813,6 @@ def every_in_global_list(triggers, effects):
     **Supported Scopes**: none/all
     """
     return default(inspect.stack()[0][3], iterator(triggers, effects))
-
 
 
 def every_in_list(triggers, effects):
@@ -1222,7 +833,6 @@ def every_in_local_list(triggers, effects):
     **Supported Scopes**: none/all
     """
     return default(inspect.stack()[0][3], iterator(triggers, effects))
-
 
 
 def every_market(triggers, effects):
@@ -1281,7 +891,6 @@ def every_neighbouring_state(triggers, effects):
     return default(inspect.stack()[0][3], iterator(triggers, effects))
 
 
-
 def every_participant(triggers, effects):
     """
 
@@ -1289,18 +898,6 @@ def every_participant(triggers, effects):
     every_participant = { limit = { <triggers> } <effects> }
     **Supported Scopes**: diplomatic_pact
     **Supported Targets**: country
-    """
-    return default(inspect.stack()[0][3], iterator(triggers, effects))
-
-
-
-def every_preferred_law(triggers, effects):
-    """
-
-    Iterate through all active and possible laws in an interest group's country, ordered by how much they prefer that law
-    every_preferred_law = { limit = { <triggers> } <effects> }
-    **Supported Scopes**: interest_group
-    **Supported Targets**: law
     """
     return default(inspect.stack()[0][3], iterator(triggers, effects))
 
@@ -1327,7 +924,6 @@ def every_province(triggers, effects):
     **Supported Targets**: state
     """
     return default(inspect.stack()[0][3], iterator(triggers, effects))
-
 
 
 def every_scope_admiral(triggers, effects):
@@ -1495,7 +1091,6 @@ def every_scope_target_ally(triggers, effects):
     return default("every_scope_target_ally", iterator(triggers, effects))
 
 
-
 def every_sea_node_adjacent_state(triggers, effects):
     """
 
@@ -1572,26 +1167,6 @@ def exile_character(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def force_resource_depletion(arg):
-    """
-
-    Forces a resource depletion in state
-    force_resource_depletion = bg_gold_mining
-    **Supported Scopes**: state
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def force_resource_discovery(arg):
-    """
-
-    Forces a resource discovery in state
-    force_resource_discovery = bg_gold_mining
-    **Supported Scopes**: state
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
 def free_character_from_void(arg):
     """
 
@@ -1632,16 +1207,6 @@ def If(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def join_revolution(arg):
-    """
-
-    Adds interest group to ongoing revolution
-    join_revolution = yes/no
-    **Supported Scopes**: interest_group
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
 def kill_character(arg):
     """
 
@@ -1659,46 +1224,6 @@ def kill_character(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-
-def kill_population_in_state(arg):
-    """
-
-    Kills a number of individuals in the population in the scoped state.
-
-    All parameters except percent are optional. Pop type and strata cannot be used at the same time.
-    kill_population = {
-        value = <integer value>
-        culture = <scope/cu:key>
-        religion = <scope/rel:key>
-        interest_group = <scope/ig:key>
-        pop_type = <scope/pop_type:key>
-        strata = <key>
-    }
-    **Supported Scopes**: state
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-
-def kill_population_percent_in_state(arg):
-    """
-
-    Kills a percentage of the population in the scoped state.
-
-    All parameters except percent are optional. Pop type and strata cannot be used at the same time.
-    kill_population_percent = {
-        percent = <decimal value>
-        culture = <scope/cu:key>
-        religion = <scope/rel:key>
-        interest_group = <scope/ig:key>
-        pop_type = <scope/pop_type:key>
-        strata = <key>
-    }
-    **Supported Scopes**: state
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
 def lock_trade_route(years):
     """
 
@@ -1711,7 +1236,6 @@ def lock_trade_route(years):
     return default(inspect.stack()[0][3], br(eq("years", years)))
 
 
-
 def mobilize_army(arg):
     """
 
@@ -1721,22 +1245,6 @@ def mobilize_army(arg):
     """
     return default(inspect.stack()[0][3], arg)
 
-
-def move_pop(arg):
-    """
-
-    Moves the scoped pop to the specified state (they become unemployed)
-    move_pop = s:STATE_TUSCANY.region_state:TUS
-
-    NOTE: VERY IMPORTANT! This effect _may_ change the pop type of the moved pop. This will happen under the following conditions:
-    1. if the current pop type cannot be unemployed, the new pop type will be the default one(arg):
-
-    2.if the current pop type is a slave type and the target state does not allow slavery, the new pop type will be the default one(arg):
-
-    **Supported Scopes**: pop
-    **Supported Targets**: state
-    """
-    return default(inspect.stack()[0][3], arg)
 
 # TODO all ordered iterators
 # TODO proper country ends here
@@ -2868,7 +2376,6 @@ def place_character_in_void(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-
 def post_notification(arg):
     """
 
@@ -3597,33 +3104,12 @@ def random_valid_mass_migration_culture(triggers, effects, mtth=""):
     return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
 
-def recalculate_pop_ig_support(arg):
-    """
-
-    Recalculates and updates a country's pop IG memberships = bool
-    **Supported Scopes**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-
 def remove_as_interest_group_leader(arg):
     """
 
     Removes a character from position as interest group leader
     remove_as_interest_group_leader = yes
     **Supported Scopes**: character
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-
-def remove_building(arg):
-    """
-
-    Remove a building in the scope state
-    remove_building = building_key
-    **Supported Scopes**: state
     """
     return default(inspect.stack()[0][3], arg)
 
@@ -3636,31 +3122,6 @@ def remove_character_role(arg):
     **Supported Scopes**: character
     """
     return default(inspect.stack()[0][3], arg)
-
-
-def remove_claim(arg):
-    """
-
-    Removes scoped state region as a claim for target country
-    add_claim = scope/country
-    **Supported Scopes**: state_region
-    **Supported Targets**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-
-
-def remove_cultural_obsession(arg):
-    """
-
-    Removes a new obsession to the culture in scope
-    remove_cultural_obsession = X
-    Where X is a goods
-    **Supported Scopes**: culture
-    """
-    return default(inspect.stack()[0][3], arg)
-
 
 
 def remove_from_list(arg):
@@ -3678,27 +3139,6 @@ def remove_global_variable(arg):
     Removes a variable
     remove_variable = variable_name
     **Supported Scopes**: none/all
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def remove_homeland(arg):
-    """
-
-    Removes scoped state region as Homeland for target culture
-    remove_homeland = cu:culture
-    **Supported Scopes**: state_region
-    **Supported Targets**: culture
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def remove_ideology(arg):
-    """
-
-    Removes an ideology from scoped interest group
-    remove_ideology = x
-    **Supported Scopes**: interest_group
     """
     return default(inspect.stack()[0][3], arg)
 
@@ -3781,27 +3221,6 @@ def remove_modifier(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-
-def remove_ruling_interest_group(arg):
-    """
-
-    Removes interest group in scope from government
-    remove_ruling_interest_group = yes/no
-    **Supported Scopes**: interest_group
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def remove_state_trait(arg):
-    """
-
-    remove state trait in a scoped state region
-    remove_state_trait = <state_trait_name>
-    **Supported Scopes**: state_region
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
 def remove_target_backers(arg):
     """
 
@@ -3810,7 +3229,6 @@ def remove_target_backers(arg):
     **Supported Scopes**: diplomatic_play
     """
     return default(inspect.stack()[0][3], arg)
-
 
 
 def remove_trait(arg):
@@ -3932,7 +3350,7 @@ def save_temporary_scope_value_as(arg):
     return default(inspect.stack()[0][3], br(arg))
 
 
-def seize_investment_pool(arg): # TODO borked?
+def seize_investment_pool(arg):  # TODO borked?
     """
 
     Seize investment pool for the treasury and transfer all private construction queue elements to the government queue = bool
@@ -3949,18 +3367,6 @@ def set_as_interest_group_leader(arg):
     **Supported Scopes**: character
     """
     return default(inspect.stack()[0][3], arg)
-
-
-def set_available_for_autonomous_investment(arg):
-    """
-
-    Sets a building type as available for autonomous investment in the current scoped State
-    set_available_for_autonomous_investment = building type scope
-    **Supported Scopes**: state
-    **Supported Targets**: building_type
-    """
-    return default(inspect.stack()[0][3], arg)
-
 
 
 def set_character_as_ruler(arg):
@@ -4013,17 +3419,6 @@ def set_company_establishment_date(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-
-def set_devastation(arg):
-    """
-
-    Set devastation to a state region
-    **Supported Scopes**: state_region
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-
 def set_global_variable(arg):
     """
 
@@ -4037,7 +3432,6 @@ def set_global_variable(arg):
     **Supported Scopes**: none/all
     """
     return default(inspect.stack()[0][3], br(arg))
-
 
 
 def set_home_country(arg):
@@ -4075,49 +3469,6 @@ def set_ideology(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def set_ig_bolstering(arg):
-    """
-
-    Starts/stops bolstering the interest group in scope
-    set_ig_bolstering = yes/no
-    **Supported Scopes**: interest_group
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def set_ig_suppression(arg):
-    """
-
-    Starts/stops suppressing the interest group in scope
-    set_ig_suppression = yes/no
-    **Supported Scopes**: interest_group
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def set_ig_trait(arg):
-    """
-
-    Adds a trait to the Interest Group, or replaces their current trait with the same approval level
-    set_ig_trait = ig_trait:ig_trait_engines_of_progress
-    **Supported Scopes**: interest_group
-    **Supported Targets**: interest_group_trait
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-
-
-def set_interest_group_name(arg):
-    """
-
-    Renames interest group to the specified loc key
-    set_interest_group_name = x
-    **Supported Scopes**: interest_group
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
 def set_key(arg):
     """
 
@@ -4143,53 +3494,6 @@ def set_local_variable(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-
-
-def set_owner_of_provinces(country, provinces):
-    """
-
-    Gives a set of provinces in a state region to a specific country
-    set_owner_of_provinces = { country = <scope> provinces = {} }
-    **Supported Scopes**: state_region
-    """
-    return default(inspect.stack()[0][3], br(eq("country", country) + eq("provinces", provinces)))
-
-
-def set_pop_literacy(literacy_rate):
-    """
-
-    Sets the literacy of the pop
-    set_pop_literacy = { literacy_rate = {...} }
-    Where the ratio is a script value computing the percentage of (workforce) pops that will be literate
-    **Supported Scopes**: pop
-    """
-    return default(inspect.stack()[0][3], br(eq("literacy_rate", literacy_rate)))
-
-
-def set_pop_qualifications(pop_type, qualifications):
-    """
-
-    Sets the pop qualifications of the pop for the given type
-    set_pop_qualifications = { pop_type = {} qualifications = {...} }
-    Where the qualifications is a script value computing the percentage of (workforce) pops that will have the qualifications
-    **Supported Scopes**: pop
-    """
-    return default(inspect.stack()[0][3], br(eq("pop_type", pop_type) + eq("qualifications", qualifications)))
-
-
-def set_pop_wealth(arg):
-    """
-
-    Sets the wealth of the pop
-    set_pop_wealth = { wealth_distribution = {...} update_loyalties = true/false }
-    Where wealth is a script values
-    **Supported Scopes**: pop
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-
-
 def set_ruling_party(arg):
     """
 
@@ -4198,31 +3502,6 @@ def set_ruling_party(arg):
     **Supported Scopes**: party
     """
     return default(inspect.stack()[0][3], arg)
-
-
-
-
-def set_state_owner(arg):
-    """
-
-    Set State Owner
-    set_state_owner = scope
-    **Supported Scopes**: state
-    **Supported Targets**: country
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-
-
-def set_state_type(type: StateType):
-    """
-
-    Sets a state to a certain type (incorporated, unincorporated, treaty_port)
-    **Supported Scopes**: state
-    """
-    assert isinstance(type, StateType)
-    return default(inspect.stack()[0][3], type.name)
 
 
 def set_subsidized(arg):
@@ -4280,27 +3559,6 @@ def show_as_tooltip(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def start_building_construction(arg): # TODO: buildings
-    """
-
-    Start constructing a building in a scoped state as a government construction
-    start_building_construction = building_barracks
-    **Supported Scopes**: state
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-def start_privately_funded_building_construction(arg):
-    """
-
-    Start constructing a building in a scoped state as a private construction
-    start_privately_funded_building_construction = building_barracks
-    **Supported Scopes**: state
-    """
-    return default(inspect.stack()[0][3], arg)
-
-
-
 def start_tutorial_lesson(arg):
     """
 
@@ -4311,7 +3569,7 @@ def start_tutorial_lesson(arg):
     return default(inspect.stack()[0][3], arg)
 
 
-def switch(arg): # TODO multiple args
+def switch(arg):  # TODO multiple args
     """
 
     Switch on a trigger for the evaluation of another trigger with an optional fallback trigger.
@@ -4369,18 +3627,6 @@ def trigger_event(arg):
     **Supported Scopes**: none/all
     """
     return default(inspect.stack()[0][3], arg)
-
-
-def unset_available_for_autonomous_investment(arg):
-    """
-
-    Sets a building type as unavailable for autonomous investment in the current scoped State
-    unset_available_for_autonomous_investment = building type scope
-    **Supported Scopes**: state
-    **Supported Targets**: building_type
-    """
-    return default(inspect.stack()[0][3], arg)
-
 
 
 def While(triggers, effects):
