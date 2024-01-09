@@ -70,7 +70,7 @@ Character(
     last_name="M'beke",
     historical=True,
     traits=["career_media_personality",
-            "humorous"]
+            "humorous"]  # add ADHD trait when it releases
 )
 
 # Modifiers example
