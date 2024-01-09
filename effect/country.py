@@ -1,7 +1,13 @@
 from common import *
+from effect.effects import Effect
 
-from effects import RegionS
-from effects import CountryS
+#from scopes import RegionSE
+#from scopes import CountrySE
+
+from parsing.generated.dip_play import Dip_play
+from parsing.generated.dip_action import Dip_action
+from parsing.generated.state_region import State_region
+from parsing.generated.country import Country
 
 
 class Level(Enum):
@@ -12,14 +18,10 @@ class Level(Enum):
     very_high = 5
 
 
-class CountryEffect:
+class CountryEffect(Effect):
     """ Wrapper around effect functions """
-
     def __init__(self, content: str):
-        self.content = content
-
-    def __str__(self):
-        return self.content
+        super().__init__(content)
 
 
 def default(arg1, arg2):
@@ -436,7 +438,7 @@ class CE:
         return default(inspect.stack()[0][3], arg)
 
     @staticmethod
-    def create_diplomatic_pact(country, first_state, second_state, type):
+    def create_diplomatic_pact(country, first_state, second_state, type: Dip_action):
         """
 
         Create a diplomatic pact between two countries, with scope country as initiator
@@ -451,13 +453,13 @@ class CE:
         return default_list(inspect.stack()[0][3], [eq("country", country),
                                                     eq("first_state", first_state),
                                                     eq("second_state", second_state),
-                                                    eq("type", type)])
+                                                    eq("type", type.name)])
 
     @staticmethod
     def create_diplomatic_play(name,
                                escalation,
                                initiator,
-                               type,
+                               type: Dip_play,
                                war: bool = False,
                                civil_war: bool = False,
                                initiator_backers: List[str] = [],
@@ -485,7 +487,7 @@ class CE:
                                 eq("escalation", escalation),
                                 eq("war", str(war).lower()),
                                 eq("initiator", initiator),
-                                eq("type", type),
+                                eq("type", type.name),
                                 eq("handle_annexation_as_civil_war", str(civil_war).lower()),
                                 default_list("add_initiator_backers", initiator_backers),
                                 default_list("add_target_backers", target_backers),
@@ -541,7 +543,7 @@ class CE:
         return default(inspect.stack()[0][3], arg)
 
     @staticmethod
-    def create_import_route(goods: Market_goods, level: Level, origin: RegionS, target: RegionS):
+    def create_import_route(goods: Market_goods, level: Level, origin: State_region, target: State_region):
         """
 
         Creates a new Trade Route
@@ -564,7 +566,7 @@ class CE:
                             ])
 
     @staticmethod
-    def create_export_route(goods: Market_goods, level: Level, origin: RegionS, target: RegionS):
+    def create_export_route(goods: Market_goods, level: Level, origin: State_region, target: State_region):
         """
 
         Creates a new Trade Route
@@ -587,7 +589,7 @@ class CE:
                             ])
 
     @staticmethod
-    def create_truce(target: CountryS, months):
+    def create_truce(target: Country, months):
         """
 
         Create a truce betweeen two countries

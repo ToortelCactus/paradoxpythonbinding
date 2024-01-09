@@ -1,16 +1,11 @@
 from common import *
 
-from effects import IGS
+from scopes import IGSE
+from effect.effects import Effect
 
 
-class PartyEffect:
+class PartyEffect(Effect):
     """ Wrapper around effect functions """
-
-    def __init__(self, content: str):
-        self.content = content
-
-    def __str__(self):
-        return self.content
 
 
 def default(arg1, arg2):
@@ -78,7 +73,7 @@ class PE:
         return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
     @staticmethod
-    def remove_ig_from_party(ig: IGS):
+    def remove_ig_from_party(ig: IGSE):
         """
 
         Removes target interest group from scope party

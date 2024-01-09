@@ -109,6 +109,16 @@ def parse_parties():
     parse_files(path, "party", True)
 
 
+def parse_diplo_actions():
+    path = MOD_PATH + "common/diplomatic_actions/"
+    parse_files(path, "dip_action", True)
+
+
+def parse_diplo_plays():
+    path = MOD_PATH + "common/diplomatic_plays/"
+    parse_files(path, "dip_play", True)
+
+
 def parse_all():
     parse_mts()
     parse_modifiers()
@@ -121,6 +131,8 @@ def parse_all():
     parse_goods()
     parse_state_regions()
     parse_parties()
+    parse_diplo_actions()
+    parse_diplo_plays()
 
 
 # for testing

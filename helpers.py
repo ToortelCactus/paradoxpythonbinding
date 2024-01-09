@@ -62,7 +62,7 @@ def random_iterator(filter: str, effects: str, mtth: str = ""):
 def list_to_text(effects: list) -> str:
     contents = ""
     for effect in effects:
-        contents += effect + "\n"
+        contents += str(effect) + "\n"
     return contents
 
 

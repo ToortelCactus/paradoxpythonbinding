@@ -2,14 +2,14 @@ from helpers import eq, br, list_to_text
 from enum import Enum
 from scriptbase import getlocalscriptfile
 from options import Option
-from string import  ascii_lowercase
+from string import ascii_lowercase
+from effect.country import CountryEffect
+from effect.state import StateEffect
 
 from typing import List
 
-
 defs = ["type", "placement", "title", "desc", "flavor", "icon", "duration",
         "on_created_soundeffect", "on_opened_soundeffect"]
-
 
 defsBr = ["immediate", "trigger", "cancellation_trigger", "event_image"]
 
@@ -38,6 +38,7 @@ class Event:
     """
     Creates event
     """
+
     def __init__(self, name: str,
                  event_type: EventType,
                  effects: list,
@@ -47,7 +48,7 @@ class Event:
                  event_img_path: str,
                  created_sfx_path: str,
                  options: list,
-                 cancel_trigger = None,
+                 cancel_trigger=None,
                  placement: str = "root",
                  opened_sfx_path: str = None,
                  desc_file: str = None):
@@ -166,3 +167,86 @@ class Event:
         return eq(self.name, br(content))
 
 
+class CountryEvent(Event):
+    """
+    Creates country event
+    """
+
+    def __init__(self, name: str,
+                 immediate: List[CountryEffect],
+                 trigger: list,
+                 icon_path: str,
+                 duration: int,
+                 event_img_path: str,
+                 created_sfx_path: str,
+                 options: list,
+                 cancel_trigger=None,
+                 placement: str = "root",
+                 opened_sfx_path: str = None,
+                 desc_file: str = None):
+        super().__init__(name,
+                         EventType.country_event,
+                         immediate,
+                         trigger,
+                         icon_path,
+                         duration,
+                         event_img_path,
+                         created_sfx_path,
+                         options,
+                         cancel_trigger,
+                         placement,
+                         opened_sfx_path,
+                         desc_file)
+
+
+class CharacterEvent(Event):
+    """
+    Creates character event
+    """
+    def __init__(self, name: str, immediate: list, trigger: list, icon_path: str, duration: int, event_img_path: str,
+                 created_sfx_path: str, options: list, cancel_trigger=None,
+                 placement: str = "root", opened_sfx_path: str = None, desc_file: str = None):
+        super().__init__(name,
+                         EventType.character_event,
+                         immediate,
+                         trigger,
+                         icon_path,
+                         duration,
+                         event_img_path,
+                         created_sfx_path,
+                         options,
+                         cancel_trigger,
+                         placement,
+                         opened_sfx_path,
+                         desc_file)
+
+
+class StateEvent(Event):
+    """
+    Creates state event
+    """
+    def __init__(self, name: str,
+                 immediate: List[StateEffect],
+                 trigger: list,
+                 icon_path: str,
+                 duration: int,
+                 event_img_path: str,
+                 created_sfx_path: str,
+                 options: list,
+                 cancel_trigger=None,
+                 placement: str = "root",
+                 opened_sfx_path: str = None,
+                 desc_file: str = None):
+        super().__init__(name,
+                         EventType.state_event,
+                         immediate,
+                         trigger,
+                         icon_path,
+                         duration,
+                         event_img_path,
+                         created_sfx_path,
+                         options,
+                         cancel_trigger,
+                         placement,
+                         opened_sfx_path,
+                         desc_file)

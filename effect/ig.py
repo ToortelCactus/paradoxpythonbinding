@@ -1,14 +1,9 @@
 from common import *
+from effect.effects import Effect
 
 
-class IGEffect:
+class IGEffect(Effect):
     """ Wrapper around effect functions """
-
-    def __init__(self, content: str):
-        self.content = content
-
-    def __str__(self):
-        return self.content
 
 
 def default(arg1, arg2):

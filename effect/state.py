@@ -1,4 +1,6 @@
 from common import *
+from effect.effects import Effect, E
+
 from parsing.generated.building import Building
 
 
@@ -8,21 +10,15 @@ class StateType(Enum):
     treaty_port = 3
 
 
-class StateEffect:
+class StateEffect(Effect):
     """ Wrapper around effect functions """
 
-    def __init__(self, content: str):
-        self.content = content
 
-    def __str__(self):
-        return self.content
-
-
-def default(arg1, arg2):
+def default(arg1, arg2): # TODO: put inside SE and others?
     return StateEffect(de(arg1, arg2))
 
 
-class SE:
+class SE(E):
     @staticmethod
     def activate_building(building: Building):
         """
