@@ -74,7 +74,7 @@ class ModifierFile(ScriptFile):
 
 class HistoryFile(ScriptFile):
     """
-    REMOVES EVERYTHING IN ORIGINAL FILE
+    REMOVES EVERYTHING IN ORIGINAL FILE (just like the others but here it stinks)
     TODO: something has to be done about that...
     """
     class Category(Enum):
