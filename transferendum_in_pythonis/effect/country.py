@@ -1,13 +1,13 @@
-from common import *
-from effect.effects import Effect
+from transferendum_in_pythonis.common import *
+from .effects import Effect
 
 #from scopes import RegionSE
 #from scopes import CountrySE
 
-from parsing.generated.dip_play import Dip_play
-from parsing.generated.dip_action import Dip_action
-from parsing.generated.state_region import State_region
-from parsing.generated.country import Country
+from transferendum_in_pythonis.parsing.generated.dip_play import Dip_play
+from transferendum_in_pythonis.parsing.generated.dip_action import Dip_action
+from transferendum_in_pythonis.parsing.generated.state_region import State_region
+from transferendum_in_pythonis.parsing.generated.country import Country
 
 
 class Level(Enum):

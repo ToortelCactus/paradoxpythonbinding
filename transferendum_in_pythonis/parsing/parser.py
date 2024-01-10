@@ -1,5 +1,5 @@
 import glob
-from defines import MOD_PATH
+from transferendum_in_pythonis.defines import MOD_PATH
 
 
 def process_file(filename: str, output, counter, level=1):

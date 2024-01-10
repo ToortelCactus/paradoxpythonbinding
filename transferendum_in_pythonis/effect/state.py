@@ -1,7 +1,7 @@
-from common import *
-from effect.effects import Effect, E
+from transferendum_in_pythonis.common import *
+from .effects import Effect, E
 
-from parsing.generated.building import Building
+from transferendum_in_pythonis.parsing.generated.building import Building
 
 
 class StateType(Enum):

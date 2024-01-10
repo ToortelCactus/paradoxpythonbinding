@@ -1,12 +1,5 @@
-from event import CountryEvent, Option
-from character import Character
-from modifier import Modifier as Mod
-from scriptbase import EventFile, HistoryFile, ModifierFile
-from effect.effects import E
-from effect.country import CE
-import triggers as c
-from parsing.generated.modifier_type import Modifier_type as mf
-from parsing.generated.modifier import Modifier
+from transferendum_in_pythonis import *
+
 
 # example event file named "csr_events" with 2 events:
 
@@ -34,9 +27,9 @@ CountryEvent(name="exampl",
 CountryEvent(name="exampl2",
              immediate=[],
              trigger=[
-                 c.exists("c:BRZ"),
-                 c.year_after("1900"),
-                 c.Not(["this = c:BRZ"])
+                 tr.exists("c:BRZ"),
+                 tr.year_after("1900"),
+                 tr.Not(["this = c:BRZ"])
              ],
              icon_path="gfx/interface/icons/event_icons/event_protest.dds",
              duration=3,
@@ -78,11 +71,11 @@ ModifierFile("notmodifiers")
 
 protest_icon = "gfx/interface/icons/event_icons/event_protest.dds"
 
-Mod(
+NewModifier(
     "shrimple_country_modifier",
     protest_icon,
     [
-        (mf.interest_group_ig_urbanists_approval_add, "1"),
-        (mf.interest_group_ig_bureaucrats_approval_add, "2.5")
+        (Modifier_type.interest_group_ig_urbanists_approval_add, "1"),
+        (Modifier_type.interest_group_ig_bureaucrats_approval_add, "2.5")
     ]
 )

@@ -1,9 +1,8 @@
-from helpers import default, iterator, random_iterator, br, eq, eqn, default_list
+from transferendum_in_pythonis.helpers import default, iterator, random_iterator, br, eq, default_list
 import inspect
 from enum import Enum
-from typing import List
 
-from parsing.generated.modifier import Modifier
+from transferendum_in_pythonis import Modifier
 
 
 class Level(Enum):

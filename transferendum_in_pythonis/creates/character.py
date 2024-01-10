@@ -1,6 +1,6 @@
 from typing import List
-from helpers import br, eq, add_if_defined
-from scriptbase import getlocalscriptfile
+from transferendum_in_pythonis.helpers import br, eq, add_if_defined
+from transferendum_in_pythonis.scriptbase import getlocalscriptfile
 
 
 class Character:

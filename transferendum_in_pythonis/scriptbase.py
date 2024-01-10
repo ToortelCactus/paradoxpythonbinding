@@ -1,7 +1,7 @@
 import os
 from enum import Enum
-from helpers import br, eq
-from defines import *
+from transferendum_in_pythonis.helpers import br, eq
+from transferendum_in_pythonis.defines import *
 
 global currentFile
 currentFile = None

@@ -1,6 +1,6 @@
-from common import *
+from transferendum_in_pythonis.common import *
 
-from parsing.generated.modifier import Modifier
+from transferendum_in_pythonis.parsing.generated.modifier import Modifier
 
 # All/None effects belongs here
 

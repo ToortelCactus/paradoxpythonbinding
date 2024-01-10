@@ -1,22 +1,20 @@
 from enum import Enum
-from helpers import eq, br
+from .helpers import eq, br
 
-from effect.country import CountryEffect
-from effect.culture import CultureEffect
-from effect.state import StateEffect
-from effect.region import RegionEffect
-from effect.pop import PopEffect
-from effect.ig import IGEffect
-from effect.party import PartyEffect
-from effect.dip_play import DipPlayEffect
-from parsing.generated.country import Country
-from parsing.generated.interest_group import Interest_group
-from parsing.generated.religion import Religion
-from parsing.generated.building import Building
-from parsing.generated.culture import Culture
-from parsing.generated.party import Party
-from parsing.generated.state_region import State_region
-from parsing.generated.market_goods import Market_goods
+from .effect.country import CountryEffect
+from .effect.culture import CultureEffect
+from .effect.state import StateEffect
+from .effect.region import RegionEffect
+from .effect.pop import PopEffect
+from .effect.ig import IGEffect
+from .effect.party import PartyEffect
+from .effect.dip_play import DipPlayEffect
+from .parsing.generated.country import Country
+from .parsing.generated.interest_group import Interest_group
+from .parsing.generated.culture import Culture
+from .parsing.generated.party import Party
+from .parsing.generated.state_region import State_region
+from .parsing.generated.market_goods import Market_goods
 
 
 class Scope:

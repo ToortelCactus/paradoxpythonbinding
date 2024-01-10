@@ -1,16 +1,16 @@
 from typing import List, Tuple
-from helpers import eq, default_list
-from scriptbase import getlocalscriptfile
-from parsing.generated.modifier_type import Modifier_type
+from transferendum_in_pythonis.helpers import eq, default_list
+from transferendum_in_pythonis.scriptbase import getlocalscriptfile
+from transferendum_in_pythonis.parsing.generated.modifier_type import Modifier_type
 
 
-class Modifier:
+class NewModifier:
     """
     Creates a modifier
     name - modifiers internal name
     icon - path to icon
     modifier_types - pairs of modifier type and value in string:
-        [(mt.bank_credibility, "4.1")]
+        [(Modifier_type.bank_credibility, "4.1")]
 
     """
     def __init__(self,

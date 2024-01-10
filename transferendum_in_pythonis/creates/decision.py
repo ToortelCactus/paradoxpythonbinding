@@ -1,6 +1,6 @@
 from typing import List
-from helpers import eq, default_list
-from scriptbase import getlocalscriptfile
+from transferendum_in_pythonis.helpers import eq, default_list
+from transferendum_in_pythonis.scriptbase import getlocalscriptfile
 
 
 class ChanceModifier:

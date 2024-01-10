@@ -1,7 +1,7 @@
-from common import *
+from transferendum_in_pythonis.common import *
+from transferendum_in_pythonis.parsing.generated.interest_group import Interest_group
 
-from scopes import IGSE
-from effect.effects import Effect
+from .effects import Effect
 
 
 class PartyEffect(Effect):
@@ -73,7 +73,7 @@ class PE:
         return default(inspect.stack()[0][3], random_iterator(triggers, effects, mtth))
 
     @staticmethod
-    def remove_ig_from_party(ig: IGSE):
+    def remove_ig_from_party(ig: Interest_group):
         """
 
         Removes target interest group from scope party

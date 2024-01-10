@@ -1,5 +1,5 @@
-from common import *
-from effects import Effect
+from transferendum_in_pythonis.common import *
+from .effects import Effect
 
 
 class PopEffect(Effect):

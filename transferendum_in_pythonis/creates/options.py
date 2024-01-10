@@ -1,4 +1,4 @@
-from helpers import eq, br, list_to_text
+from transferendum_in_pythonis.helpers import eq, br, list_to_text
 
 
 class Option:
