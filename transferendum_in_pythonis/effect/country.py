@@ -1,13 +1,12 @@
 from transferendum_in_pythonis.common import *
 from .effects import Effect
 
-#from scopes import RegionSE
-#from scopes import CountrySE
 
 from transferendum_in_pythonis.parsing.generated.dip_play import Dip_play
 from transferendum_in_pythonis.parsing.generated.dip_action import Dip_action
 from transferendum_in_pythonis.parsing.generated.state_region import State_region
 from transferendum_in_pythonis.parsing.generated.country import Country
+from transferendum_in_pythonis.parsing.generated.law import Law
 
 
 class Level(Enum):
@@ -30,14 +29,14 @@ def default(arg1, arg2):
 
 class CE:
     @staticmethod
-    def activate_law(law):
+    def activate_law(law: Law):
         """
 
         Activates a law for a country
         **Supported Scopes**: country
         **Supported Targets**: law_type
         """
-        return default("activate_law", law)
+        return default("activate_law", law.name)
 
     @staticmethod
     def activate_production_method(arg):
@@ -364,14 +363,14 @@ class CE:
         return default(inspect.stack()[0][3], arg)
 
     @staticmethod
-    def change_tag(arg):
+    def change_tag(tag: Country):
         """
 
         Change the tag for the scoped country
         c:GBR = { change_tag = FRA }
         **Supported Scopes**: country
         """
-        return default(inspect.stack()[0][3], arg)
+        return default(inspect.stack()[0][3], tag.name)
 
     @staticmethod
     def change_tension(target, value):
@@ -606,13 +605,13 @@ class CE:
                             ])
 
     @staticmethod
-    def deactivate_law(arg):
+    def deactivate_law(law: Law):
         """
         Deactivates a law for a country
         **Supported Scopes**: country
         **Supported Targets**: law_type
         """
-        return default(inspect.stack()[0][3], arg)
+        return default(inspect.stack()[0][3], law.name)
 
     @staticmethod
     def deactivate_parties(arg):
@@ -1448,7 +1447,7 @@ class CE:
         return default(inspect.stack()[0][3], br(eq("tcountry", target) + eq("value", value)))
 
     @staticmethod
-    def start_enactment(arg):  # TODO: law types
+    def start_enactment(law: Law):
         """
 
         Starts enacting the specified law type for the country in scope
@@ -1456,7 +1455,7 @@ class CE:
         **Supported Scopes**: country
         **Supported Targets**: law_type
         """
-        return default(inspect.stack()[0][3], arg)
+        return default(inspect.stack()[0][3], law.name)
 
     @staticmethod
     def start_research_random_technology(arg):

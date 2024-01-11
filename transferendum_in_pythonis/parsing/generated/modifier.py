@@ -306,3 +306,5 @@ class Modifier(Enum):
     declaration_of_human_rights = 287
     unclos1 = 288
 
+    shrimple_country_modifier = 289
+

@@ -119,6 +119,16 @@ def parse_diplo_plays():
     parse_files(path, "dip_play", True)
 
 
+def parse_gov_types():
+    path = MOD_PATH + "common/government_types/"
+    parse_files(path, "gov_type", True)
+
+
+def parse_laws():
+    path = MOD_PATH + "common/laws/"
+    parse_files(path, "law", True)
+
+
 def parse_all():
     parse_mts()
     parse_modifiers()
@@ -133,6 +143,8 @@ def parse_all():
     parse_parties()
     parse_diplo_actions()
     parse_diplo_plays()
+    parse_gov_types()
+    parse_laws()
 
 
 # for testing

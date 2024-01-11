@@ -18,7 +18,7 @@ CountryEvent(name="exampl",
                      is_highlighted=True
                  ),
                  Option(
-                     [CE.change_tag("BRZ")]  # You are going to Brazil
+                     [CE.change_tag(Country.BRZ)]  # You are going to Brazil
                  )
              ]
 
@@ -27,9 +27,9 @@ CountryEvent(name="exampl",
 CountryEvent(name="exampl2",
              immediate=[],
              trigger=[
-                 tr.exists("c:BRZ"),
-                 tr.year_after("1900"),
-                 tr.Not(["this = c:BRZ"])
+                 T.exists("c:BRZ"),
+                 T.year_after("1900"),
+                 T.Not(["this = c:BRZ"])
              ],
              icon_path="gfx/interface/icons/event_icons/event_protest.dds",
              duration=3,
@@ -38,18 +38,18 @@ CountryEvent(name="exampl2",
              opened_sfx_path="event:/SFX/Events/unspecific/leader_speaking_to_a_group_of_people",
              options=[
                  Option(
-                     [CE.change_tag("BRZ")],  # *You are going to Brazil*
+                     [CE.change_tag(Country.BRZ)],  # *You are going to Brazil*
                      is_highlighted=True
                  ),
                  Option(
-                     [CE.change_tag("BRZ"),
+                     [CE.change_tag(Country.BRZ),
                       CE.call_election(6)]  # You are going to Brazil and have an election
                  ),
                  Option(
-                     [CE.change_tag("BRZ")]  # You are going to Brazil
+                     [CE.change_tag(Country.BRZ)]  # You are going to Brazil
                  ),
                  Option(
-                     [CE.change_tag("BRZ"), E.add_modifier(Modifier.declared_bankruptcy, 6)]  # You are going to Brazil
+                     [CE.change_tag(Country.BRZ), E.add_modifier(Modifier.declared_bankruptcy, 6)]  # You are going to Brazil
                  )
              ]
 
